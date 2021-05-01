@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Elaps</string>
+    <string name="minutes_90">90</string>
+    <string name="minutes_60">60</string>
+    <string name="minutes_45">45</string>
+    <string name="minutes_30">30</string>
+    <string name="minutes_20">20</string>
+</resources>

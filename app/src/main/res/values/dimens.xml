@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="img_width_height">120dp</dimen>
+
+    <dimen name="slide_title">30dp</dimen>
+    <dimen name="slide_desc">16dp</dimen>
+    <dimen name="desc_padding">40dp</dimen>
+    <dimen name="bottom_nav_height">56dp</dimen>
+    <dimen name="sp12">12sp</dimen>
+    <dimen name="card_elevation">3dp</dimen>
+    <dimen name="card_corner_radius">4dp</dimen>
+    <dimen name="no_elevation">0dp</dimen>
+    <dimen name="tag_width">98dp</dimen>
+    <dimen name="tag_height">24dp</dimen>
+    <dimen name="text_size_timer_preset">18sp</dimen>
+    <dimen name="timer_preset_size">40dp</dimen>
+    <dimen name="timer_preset_margin">12dp</dimen>
+
+    <dimen name="padding_list_item_timer_slider">8dp</dimen>
+</resources>
