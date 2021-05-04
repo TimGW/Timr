@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
+import org.koin.android.ext.android.inject
 
 
 class TimerSetupActivity : Activity() {
@@ -59,45 +60,12 @@ class TimerSetupActivity : Activity() {
 
     private fun startRunningTimerActivity() {
         finish()
-//        startActivity(TimerRunningActivity.getLaunchingIntent(TimerSetupActivity.this));
-    }
 
-    //   fun setTimerMinutes(minutes: Int) {
-//        realm.executeTransaction(new Realm.Transaction() {
-//            @Override
-//            public void execute(@NonNull Realm realm) {
-//                TimerSetting timerSetting = new TimerSetting();
-//                timerSetting.setId(Constants.DEFAULT_TIMER_ID);
-//
-//                long timeInMilliseconds = convertToMilis(minutes);
-//                timerSetting.setInitialTimeMilliseconds(timeInMilliseconds);
-//                timerSetting.setSavedTimeMilliseconds(timeInMilliseconds);
-//                timerSetting.setStatus(TimerSetting.Status.STOPPED);
-//
-//                realm.copyToRealmOrUpdate(timerSetting);
-//            }
-//        });
-//        presentMinutes(minutes)
-//    }
-//
-//    fun timerMinutes() {
-//        val timerSetting: TimerSetting? =
-//            null //realm.where(TimerSetting.class).equalTo("id", Constants.DEFAULT_TIMER_ID).findFirst();
-//        if (timerSetting != null) {
-//            val seconds = convertToSeconds(timerSetting.savedTimeMilliseconds)
-//            presentMinutes(seconds)
-//        } else {
-//            presentMinutes(15)
-//        }
-//    }
-//
-//    private fun convertToMilis(seconds: Int): Long {
-//        return (seconds * 60 * 1000).toLong()
-//    }
-//
-//    private fun convertToSeconds(milis: Long): Int {
-//        return (milis / 60 / 1000).toInt()
-//    }
+        val intent = TimerRunningActivity.getLaunchingIntent(this)
+        intent.putExtra(INTENT_EXTRA_MINUTES, binding.timerSelectedMinutes.text.toString().toInt())
+
+        startActivity(intent)
+    }
 
     companion object {
         fun launchingIntent(ctx: Context?): Intent {
@@ -109,5 +77,7 @@ class TimerSetupActivity : Activity() {
         private const val MINUTES_45 = 45
         private const val MINUTES_60 = 60
         private const val MINUTES_90 = 90
+
+        const val INTENT_EXTRA_MINUTES = "INTENT_EXTRA_MINUTES"
     }
 }

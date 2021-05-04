@@ -5,5 +5,5 @@
     android:useLevel="true"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <solid android:color="@android:color/white" />
+    <solid android:color="@android:color/darker_gray" />
 </shape>

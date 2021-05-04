@@ -4,21 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/barTimer"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:background="@drawable/circular_progress_bar_done"
+        style="?attr/circularProgressIndicatorStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:indeterminate="false"
-        android:max="100"
-        android:progress="100"
-        android:progressDrawable="@drawable/circular_progress_bar"
-        android:rotation="90"
+        app:indicatorSize="250dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:trackColor="@color/color_alpha_12"
+        app:trackCornerRadius="20dp"
+        app:trackThickness="8dp" />
 
     <TextView
         android:id="@+id/textViewTime"
