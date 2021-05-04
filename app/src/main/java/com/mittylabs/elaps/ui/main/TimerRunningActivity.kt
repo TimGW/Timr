@@ -1,8 +1,6 @@
 package com.mittylabs.elaps.ui.main
 
 import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,8 +13,7 @@ import com.mittylabs.elaps.service.CountdownTimerService
 import com.mittylabs.elaps.service.CountdownTimerService.Companion.INTENT_EXTRA_INITIAL_TIME
 import com.mittylabs.elaps.service.CountdownTimerService.Companion.INTENT_EXTRA_RESULT
 import com.mittylabs.elaps.ui.main.TimerSetupActivity.Companion.INTENT_EXTRA_MINUTES
-import com.mittylabs.elaps.ui.millisToTimerFormat
-import java.util.concurrent.TimeUnit
+import com.mittylabs.elaps.ui.toTimerFormat
 
 
 class TimerRunningActivity : Activity() {
@@ -76,7 +73,7 @@ class TimerRunningActivity : Activity() {
                     val time = intent.getLongExtra(INTENT_EXTRA_RESULT, 0L)
                     val initialTime = intent.getLongExtra(INTENT_EXTRA_INITIAL_TIME, 0L)
                     updateProgressBar(initialTime, time)
-                    binding.textViewTime.text = time.millisToTimerFormat()
+                    binding.textViewTime.text = time.toTimerFormat()
                 }
             }
         }

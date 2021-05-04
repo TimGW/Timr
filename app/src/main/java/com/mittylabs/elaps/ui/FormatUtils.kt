@@ -2,7 +2,10 @@ package com.mittylabs.elaps.ui
 
 import java.util.concurrent.TimeUnit
 
-fun Long.millisToTimerFormat(): String {
+/**
+ * milliseconds to readable timer format
+ */
+fun Long.toTimerFormat(): String {
     return String.format(
         "%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(this),
         TimeUnit.MILLISECONDS.toMinutes(this) - TimeUnit.HOURS.toMinutes(

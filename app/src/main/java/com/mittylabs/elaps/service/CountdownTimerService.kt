@@ -13,13 +13,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.ui.main.TimerRunningActivity
 import com.mittylabs.elaps.ui.main.TimerSetupActivity.Companion.INTENT_EXTRA_MINUTES
-import com.mittylabs.elaps.ui.millisToTimerFormat
+import com.mittylabs.elaps.ui.toTimerFormat
 
 class CountdownTimerService : Service() {
     private var timer: CounterClass? = null
     private lateinit var notificationManager: NotificationManager
     private var channelId: String = ""
-    private lateinit var pendingIntent: PendingIntent
+    private lateinit var timerRunningPendingIntent: PendingIntent
     private lateinit var notificationBuilder: NotificationCompat.Builder
     private var initialTimeInMillis: Long = 0L
 
@@ -40,8 +40,8 @@ class CountdownTimerService : Service() {
             )
         }
 
-        notificationBuilder = NotificationCompat.Builder(this@CountdownTimerService, channelId)
-        pendingIntent = PendingIntent.getActivity(
+        notificationBuilder = NotificationCompat.Builder(this, channelId)
+        timerRunningPendingIntent = PendingIntent.getActivity(
             this,
             0,
             Intent(this, TimerRunningActivity::class.java),
@@ -54,23 +54,22 @@ class CountdownTimerService : Service() {
         timer = CounterClass(initialTimeInMillis, TIMER_TICK_INTERVAL)
         timer?.start()
 
-        val notification = notificationBuilder.setOngoing(true)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentText(initialTimeInMillis.millisToTimerFormat())
-            .setContentIntent(pendingIntent)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
-
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(
+            NOTIFICATION_ID,
+            buildNotification(initialTimeInMillis.toTimerFormat())
+        )
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         timer?.cancel()
         super.onDestroy()
-        val timerInfoIntent = Intent(TIME_INFO)
-        timerInfoIntent.putExtra(INTENT_EXTRA_RESULT, initialTimeInMillis)
-        LocalBroadcastManager.getInstance(this@CountdownTimerService).sendBroadcast(timerInfoIntent)
+
+        val timerInfoIntent = Intent(TIME_INFO).apply {
+            putExtra(INTENT_EXTRA_RESULT, initialTimeInMillis)
+        }
+
+        broadcastIntent(timerInfoIntent)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -85,34 +84,41 @@ class CountdownTimerService : Service() {
         return channelId
     }
 
-    inner class CounterClass(private val millisInFuture: Long, countDownInterval: Long) :
-        CountDownTimer(millisInFuture, countDownInterval) {
+    private fun buildNotification(contextText: String) = notificationBuilder
+        .setOngoing(true)
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+        .setContentText(contextText)
+        .setContentIntent(timerRunningPendingIntent)
+        .setCategory(Notification.CATEGORY_SERVICE)
+        .build()
 
-        override fun onTick(millisUntilFinished: Long) {
-            val notification = notificationBuilder
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentText(millisUntilFinished.millisToTimerFormat())
-                .setContentIntent(pendingIntent)
-                .setCategory(Notification.CATEGORY_SERVICE)
-//                .addAction(R.drawable.ic_clear, "cancel", cancelAction())
-                .build()
+    private fun broadcastIntent(intent: Intent) {
+        LocalBroadcastManager.getInstance(this@CountdownTimerService).sendBroadcast(intent)
+    }
 
-            notificationManager.notify(NOTIFICATION_ID, notification)
+    inner class CounterClass(private val initialTimeInMillis: Long, countDownInterval: Long) :
+        CountDownTimer(initialTimeInMillis, countDownInterval) {
 
-            val timerInfoIntent = Intent(TIME_INFO)
-            timerInfoIntent.putExtra(INTENT_EXTRA_RESULT, millisUntilFinished)
-            timerInfoIntent.putExtra(INTENT_EXTRA_INITIAL_TIME, initialTimeInMillis)
+        override fun onTick(remainingMillis: Long) {
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                buildNotification(remainingMillis.toTimerFormat())
+            )
 
-            LocalBroadcastManager.getInstance(this@CountdownTimerService)
-                .sendBroadcast(timerInfoIntent)
+            val timerInfoIntent = Intent(TIME_INFO).apply {
+                putExtra(INTENT_EXTRA_RESULT, remainingMillis)
+                putExtra(INTENT_EXTRA_INITIAL_TIME, initialTimeInMillis)
+            }
+
+            broadcastIntent(timerInfoIntent)
         }
 
         override fun onFinish() {
-            val timerInfoIntent = Intent(TIME_INFO)
-            timerInfoIntent.putExtra(INTENT_EXTRA_RESULT, millisInFuture)
-            LocalBroadcastManager.getInstance(this@CountdownTimerService)
-                .sendBroadcast(timerInfoIntent)
+            val timerInfoIntent = Intent(TIME_INFO).apply {
+                putExtra(INTENT_EXTRA_RESULT, initialTimeInMillis)
+            }
+
+            broadcastIntent(timerInfoIntent)
 
             this@CountdownTimerService.stopSelf()
         }
