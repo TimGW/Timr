@@ -17,22 +17,16 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
         <activity android:name=".ui.main.TimerSetupActivity">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
-        </activity>
-
-        <activity
-            android:name=".ui.main.TimerActivity"
-            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.main.TimerActivity"
+            android:launchMode="singleTop" />
 
         <service
             android:name=".service.TimerService"

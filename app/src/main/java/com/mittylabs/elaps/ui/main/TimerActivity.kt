@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
+import android.os.Build.*
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -44,7 +45,7 @@ class TimerActivity : Activity() {
             Intent(this, TimerActivity::class.java).let { intent ->
                 getActivity(this, 0, intent, FLAG_UPDATE_CURRENT)
             }
-        )
+        ).apply { if (savedInstanceState == null) play(timerRemainingMillis) } // todo restore state from sharedpref otherwise timer will run when activity is destroyed
 
         initTimerListeners()
         initButtonListeners()
@@ -72,23 +73,17 @@ class TimerActivity : Activity() {
         timer.setOnTickListener { timerLengthMillis, millisUntilFinished ->
             timerRemainingMillis = millisUntilFinished
             updateProgress(timerLengthMillis, millisUntilFinished, true)
-
-        }.setOnStateChangedListener { timerState ->
-            this.timerState = timerState
+        }.setOnStateChangedListener { state ->
+            timerState = state
             updateTimerState(timerState)
-
         }.setOnFinishListener {
-            updateProgress(timerLengthMillis, timerLengthMillis)
             Toast.makeText(this, "timer finished", Toast.LENGTH_SHORT).show()
+            updateProgress(timerLengthMillis, timerLengthMillis)
         }
     }
 
     private fun initButtonListeners() {
-        binding.timerTerminateButton.setOnClickListener {
-            timer.terminate()
-            finish()
-            startActivity(TimerSetupActivity.launchingIntent(this@TimerActivity))
-        }
+        binding.timerTerminateButton.setOnClickListener { timer.terminate() }
 
         onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { _, isPaused ->
             if (isPaused) timer.pause() else timer.play(timerLengthMillis)
@@ -96,38 +91,41 @@ class TimerActivity : Activity() {
             binding.timerStartPauseToggleButton.setOnCheckedChangeListener(it)
         }
 
-        binding.timerResetButton.setOnClickListener {
-            timer.stop()
-            updateProgress(timerLengthMillis, timerLengthMillis)
-        }
+        binding.timerResetButton.setOnClickListener { timer.stop() }
     }
 
     private fun updateTimerState(timerState: TimerState) {
+        binding.timerTextView.clearAnimation()
+
         when (timerState) {
+            RUNNING -> { }
             PAUSED -> binding.timerTextView.blink()
-            else -> binding.timerTextView.clearAnimation()
+            STOPPED -> updateProgress(timerLengthMillis, timerLengthMillis)
+            TERMINATED -> {
+                finish()
+                startActivity(TimerSetupActivity.launchingIntent(this@TimerActivity))
+            }
         }
 
+        // temporary disable listener to update the toggle button state
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(null)
-        binding.timerStartPauseToggleButton.isChecked = timerState == PAUSED
+        binding.timerStartPauseToggleButton.isChecked = timerState != RUNNING
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
     }
 
-    private fun updateProgress(timerLength: Long, timerRemaining: Long, animate: Boolean = false) {
-        binding.timerProgressBar.max = timerLength.toInt()
-        binding.timerTextView.text = timerRemaining.toHumanFormat()
+    private fun updateProgress(length: Long, remaining: Long, animate: Boolean = false) {
+        binding.timerProgressBar.max = length.toInt() // required to support adding 5 minutes
+        binding.timerTextView.text = remaining.toHumanFormat()
 
-        val progress = (timerLengthMillis - timerRemaining)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            binding.timerProgressBar.setProgress(progress.toInt(), animate)
+        val progress = calcProgress(length, remaining).toInt()
+        if (VERSION.SDK_INT >= VERSION_CODES.N) {
+            binding.timerProgressBar.setProgress(progress, animate)
         } else {
-            binding.timerProgressBar.progress = progress.toInt()
+            binding.timerProgressBar.progress = progress
         }
     }
 
-    private fun updateProgressBar(initialTime: Long, remainingTime: Long) {
-
-    }
+    private fun calcProgress(length: Long, remaining: Long) = length - remaining
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

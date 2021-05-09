@@ -28,8 +28,8 @@ class TimerService : Service() {
     }
 
     private lateinit var timer: CountDownTimer
-    private var timerRemainingMillis: Long = 0L
     private var timerLengthMillis: Long = 0L
+    private var timerRemainingMillis: Long = 0L
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -56,27 +56,27 @@ class TimerService : Service() {
         }
         startForeground(NOTIFICATION_ID, TimerController.createNotification(this, timerLength))
 
-        timer = createCountDownTimer(timerRemainingMillis).start()
-        timerState = TimerState.RUNNING
+        timer = createCountDownTimer(timerLength).start()
+        timerState = TimerController.updateTimerState(TimerState.RUNNING)
     }
 
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerState.PAUSED
+        timerState = TimerController.updateTimerState(TimerState.PAUSED)
         TimerController.updatePauseState(this, timerRemainingMillis.toHumanFormat())
-//        stopForeground(false) this will kill the service by the system after ~2 min
+//      fixme stopForeground(false) this will kill the service by the system after ~2 min
     }
 
     private fun stopTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerState.STOPPED
+        timerState = TimerController.updateTimerState(TimerState.STOPPED)
         TimerController.updateStopState(this@TimerService)
 
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerState.TERMINATED
+        timerState = TimerController.updateTimerState(TimerState.TERMINATED)
         TimerController.removeNotification(this) // todo broadcast resetUI ?
         stopSelf()
     }
@@ -85,22 +85,24 @@ class TimerService : Service() {
         if (::timer.isInitialized) {
             timerLengthMillis += FIVE_MINUTES_IN_MILLIS
             timerRemainingMillis += FIVE_MINUTES_IN_MILLIS
+
             timer.cancel()
             timer = createCountDownTimer(timerRemainingMillis).start()
+
+            timerState = TimerController.updateTimerState(TimerState.RUNNING)
         }
-        timerState = TimerState.RUNNING
     }
 
     private fun createCountDownTimer(millisInFuture: Long) =
         object : CountDownTimer(millisInFuture, COUNTDOWN_TICK_INTERVAL) {
             override fun onFinish() {
-                timerState = TimerState.STOPPED
+                timerState = TimerController.updateTimerState(TimerState.STOPPED)
                 TimerController.updateStopState(this@TimerService, true)
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                TimerController.updateUntilFinished(timerLengthMillis, millisUntilFinished)
                 timerRemainingMillis = millisUntilFinished
+                TimerController.updateUntilFinished(timerLengthMillis, millisUntilFinished)
                 TimerController.updateTimeLeft(
                     this@TimerService,
                     timerRemainingMillis.toHumanFormat()
