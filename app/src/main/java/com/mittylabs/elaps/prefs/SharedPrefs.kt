@@ -6,15 +6,11 @@ class SharedPrefs(
     private val preferences: SharedPrefManager
 ) {
 
-    fun getTimerLength(): Int {
-        return preferences.getIntValue(TIMER_LENGTH_ID, 10)
+    fun getTimerLength(): Long {
+        return preferences.getLongValue(TIMER_LENGTH_ID, 0L)
     }
-
-    fun getPreviousTimerLengthSeconds(): Long {
-        return preferences.getLongValue(PREVIOUS_TIMER_LENGTH_SECONDS_ID, 0)
-    }
-    fun setPreviousTimerLengthSeconds(seconds: Long) {
-        preferences.setLongValue(PREVIOUS_TIMER_LENGTH_SECONDS_ID, seconds)
+    fun setTimerLength(length: Long) {
+        preferences.setLongValue(TIMER_STATE_ID, length)
     }
 
     fun getTimerState(): TimerState {
@@ -25,11 +21,11 @@ class SharedPrefs(
         preferences.setIntValue(TIMER_STATE_ID, state.ordinal)
     }
 
-    fun getSecondsRemaining(): Long {
-        return preferences.getLongValue(SECONDS_REMAINING_ID, 0)
+    fun getTimeRemaining(): Long {
+        return preferences.getLongValue(MILLISECONDS_REMAINING_ID, 0)
     }
-    fun setSecondsRemaining(seconds: Long) {
-        preferences.setLongValue(SECONDS_REMAINING_ID, seconds)
+    fun setTimeRemaining(milliseconds: Long) {
+        preferences.setLongValue(MILLISECONDS_REMAINING_ID, milliseconds)
     }
 
     fun getAlarmSetTime(): Long {
@@ -43,7 +39,7 @@ class SharedPrefs(
         private const val TIMER_LENGTH_ID = "timer_length"
         private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "previous_timer_length_seconds"
         private const val TIMER_STATE_ID = "timer_state"
-        private const val SECONDS_REMAINING_ID = "seconds_remaining"
+        private const val MILLISECONDS_REMAINING_ID = "milliseconds_remaining"
         private const val ALARM_SET_TIME_ID = "backgrounded_time"
     }
 }

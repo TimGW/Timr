@@ -7,8 +7,6 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
-import org.koin.android.ext.android.inject
-
 
 class TimerSetupActivity : Activity() {
     private lateinit var binding: ActivityTimerSettingsBinding
@@ -53,16 +51,15 @@ class TimerSetupActivity : Activity() {
                 else -> MINUTES_30
             }
             sliderLayoutManager.smoothScroll(binding.recyclerView, minutes - 1)
-        }.run {
-            binding.minutes30.isChecked = true
         }
     }
 
     private fun startRunningTimerActivity() {
         finish()
 
-        val intent = TimerRunningActivity.getLaunchingIntent(this)
-        intent.putExtra(INTENT_EXTRA_MINUTES, binding.timerSelectedMinutes.text.toString().toInt())
+        val intent = TimerActivity.getLaunchingIntent(this)
+        val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L //* 60L
+        intent.putExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, time)
 
         startActivity(intent)
     }
@@ -78,6 +75,6 @@ class TimerSetupActivity : Activity() {
         private const val MINUTES_60 = 60
         private const val MINUTES_90 = 90
 
-        const val INTENT_EXTRA_MINUTES = "INTENT_EXTRA_MINUTES"
+        const val INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS = "TIMER_LENGTH_MILLISECONDS"
     }
 }

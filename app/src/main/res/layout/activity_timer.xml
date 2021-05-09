@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/barTimer"
+        android:id="@+id/timer_progress_bar"
         style="?attr/circularProgressIndicatorStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,15 +20,15 @@
         app:trackThickness="8dp" />
 
     <TextView
-        android:id="@+id/textViewTime"
+        android:id="@+id/timer_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:freezesText="true"
         android:textSize="50sp"
-        app:layout_constraintBottom_toBottomOf="@id/barTimer"
-        app:layout_constraintEnd_toEndOf="@id/barTimer"
-        app:layout_constraintStart_toStartOf="@id/barTimer"
-        app:layout_constraintTop_toTopOf="@id/barTimer" />
+        app:layout_constraintBottom_toBottomOf="@id/timer_progress_bar"
+        app:layout_constraintEnd_toEndOf="@id/timer_progress_bar"
+        app:layout_constraintStart_toStartOf="@id/timer_progress_bar"
+        app:layout_constraintTop_toTopOf="@id/timer_progress_bar" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
@@ -46,28 +46,32 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/timer_start_button"
+        app:layout_constraintStart_toEndOf="@+id/timer_start_pause_toggle_button"
         app:layout_constraintTop_toTopOf="@+id/guideline" />
 
-    <ImageView
-        android:id="@+id/timer_start_button"
+    <ToggleButton
+        android:id="@+id/timer_start_pause_toggle_button"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:src="@drawable/ic_play_circle_filled"
+        android:background="@drawable/play_pause_toggle"
+        android:text="@null"
+        android:textOff="@null"
+        android:textOn="@null"
+        android:checked="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/timer_reset_button"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/timer_stop_button"
+        app:layout_constraintStart_toEndOf="@+id/timer_terminate_button"
         app:layout_constraintTop_toTopOf="@+id/guideline" />
 
     <ImageView
-        android:id="@+id/timer_stop_button"
+        android:id="@+id/timer_terminate_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"
         android:src="@drawable/ic_clear"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/timer_start_button"
+        app:layout_constraintEnd_toStartOf="@+id/timer_start_pause_toggle_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline" />

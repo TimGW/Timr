@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit
 /**
  * milliseconds to readable timer format
  */
-fun Long.toTimerFormat(): String {
+fun Long.toHumanFormat(): String {
     return String.format(
         "%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(this),
         TimeUnit.MILLISECONDS.toMinutes(this) - TimeUnit.HOURS.toMinutes(

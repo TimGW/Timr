@@ -5,4 +5,13 @@
     <string name="minutes_45">45</string>
     <string name="minutes_30">30</string>
     <string name="minutes_20">20</string>
+    <string name="notification_action_stop">Resetten</string>
+    <string name="notification_action_resume">Hervatten</string>
+    <string name="notification_state_paused">gepauzeerd</string>
+    <string name="notification_action_pause">Pauzeren</string>
+    <string name="notification_action_extend">5 min. toevoegen</string>
+    <string name="notification_content_text">Timer %1$s</string>
+    <string name="notification_state_stopped">gestopt</string>
+    <string name="notification_action_start">starten</string>
+    <string name="notification_action_terminate">verwijderen</string>
 </resources>
