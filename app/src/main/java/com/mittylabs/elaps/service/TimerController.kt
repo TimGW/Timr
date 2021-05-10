@@ -82,7 +82,7 @@ object TimerController : Timer {
         channelId = "${context.packageName}.timer"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "timer", NotificationManager.IMPORTANCE_HIGH).apply {
+            val channel = NotificationChannel(channelId, "timer", NotificationManager.IMPORTANCE_DEFAULT).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 setShowBadge(false)
             }
@@ -115,8 +115,8 @@ object TimerController : Timer {
     fun updateStopState(context: Context, timeUp: Boolean = false) {
         from(context).notify(NOTIFICATION_ID, stoppedStateNotification(context))
         if (timeUp) {
-            from(context).cancelAll()
-            from(context).notify(11, finishedStateNotification(context))
+//            from(context).cancelAll() todo high important notification with alarm
+//            from(context).notify(11, finishedStateNotification(context))
             finishListener?.invoke()
         }
     }

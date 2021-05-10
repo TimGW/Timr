@@ -60,7 +60,7 @@ class TimerSetupActivity : Activity() {
         finish()
 
         val intent = TimerActivity.getLaunchingIntent(this)
-        val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L //* 60L
+        val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L * 60L
         intent.putExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, time)
 
         startActivity(intent)
