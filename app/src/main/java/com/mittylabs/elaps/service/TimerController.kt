@@ -2,7 +2,7 @@ package com.mittylabs.elaps.service
 
 import android.app.Notification
 import android.app.NotificationChannel
-import android.app.NotificationManager.IMPORTANCE_DEFAULT
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.*
 import android.content.Context
@@ -10,7 +10,6 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.NotificationManagerCompat.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startForegroundService
@@ -27,7 +26,7 @@ import com.mittylabs.elaps.ui.main.TimerState
 import com.mittylabs.elaps.ui.toHumanFormat
 import kotlin.properties.Delegates
 
-// TODO refactor this class
+// TODO refactor this class to use broadcast intent's that the activity can subscribe to
 object TimerController : Timer {
     private const val REQUEST_CODE = 29
     private var contentPendingIntent: PendingIntent? = null
@@ -83,7 +82,7 @@ object TimerController : Timer {
         channelId = "${context.packageName}.timer"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, "timer", IMPORTANCE_DEFAULT).apply {
+            val channel = NotificationChannel(channelId, "timer", NotificationManager.IMPORTANCE_HIGH).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 setShowBadge(false)
             }
@@ -115,7 +114,11 @@ object TimerController : Timer {
 
     fun updateStopState(context: Context, timeUp: Boolean = false) {
         from(context).notify(NOTIFICATION_ID, stoppedStateNotification(context))
-        if (timeUp) finishListener?.invoke()
+        if (timeUp) {
+            from(context).cancelAll()
+            from(context).notify(11, finishedStateNotification(context))
+            finishListener?.invoke()
+        }
     }
 
     fun updateUntilFinished(timerLengthMillis: Long, millisUntilFinished: Long) {
@@ -140,8 +143,6 @@ object TimerController : Timer {
         setContentText(context.getString(R.string.notification_content_text, contentPostFix))
         setOnlyAlertOnce(true)
         color = ContextCompat.getColor(context, R.color.color_primary)
-        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-        setCategory(Notification.CATEGORY_REMINDER)
         contentPendingIntent?.let { setContentIntent(it) }
     }
 
@@ -167,6 +168,17 @@ object TimerController : Timer {
     ): Notification = baseNotificationBuilder(context, timerLengthMillis.toHumanFormat(), context.getString(R.string.notification_state_stopped)).apply {
         addAction(R.drawable.ic_play_white, context.getString(R.string.notification_action_start), getPlayPendingIntent(context, false))
         addAction(R.drawable.ic_clear_white, context.getString(R.string.notification_action_terminate), terminatePendingIntent)
+        setDeleteIntent(terminatePendingIntent).build()
+    }.build()
+
+    private fun finishedStateNotification(
+        context: Context
+    ): Notification = baseNotificationBuilder(context, timerLengthMillis.toHumanFormat(),
+        context.getString(R.string.notification_state_finished)).apply {
+        priority = NotificationManager.IMPORTANCE_HIGH
+        setCategory(NotificationCompat.CATEGORY_ALARM)
+        setAutoCancel(true)
+        setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
         setDeleteIntent(terminatePendingIntent).build()
     }.build()
 

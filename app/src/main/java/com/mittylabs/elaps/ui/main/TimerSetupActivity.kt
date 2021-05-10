@@ -3,7 +3,10 @@ package com.mittylabs.elaps.ui.main
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.Bundle
+import android.provider.Settings
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
@@ -24,17 +27,16 @@ class TimerSetupActivity : Activity() {
     }
 
     private fun setupRecyclerView() {
-        val screenWidth = windowManager.currentWindowMetrics.bounds.width()
-        val itemPadding = resources.getDimension(R.dimen.padding_list_item_timer_slider)
-        val adapter = TimerAdapter().apply {
-            onItemClick = { sliderLayoutManager.smoothScroll(binding.recyclerView, it) }
-        }
-
-        sliderLayoutManager = SliderLayoutManager(this, screenWidth, itemPadding).apply {
+        sliderLayoutManager = SliderLayoutManager(
+            this,
+            windowManager.currentWindowMetrics.bounds.width()
+        ).apply {
             onScroll = { binding.timerSelectedMinutes.text = (it + 1).toString() }
         }
 
-        binding.recyclerView.adapter = adapter
+        binding.recyclerView.adapter = TimerAdapter().apply {
+            onItemClick = { sliderLayoutManager.smoothScroll(binding.recyclerView, it) }
+        }
         binding.recyclerView.layoutManager = sliderLayoutManager
 
         LinearSnapHelper().attachToRecyclerView(binding.recyclerView)
@@ -51,7 +53,7 @@ class TimerSetupActivity : Activity() {
                 else -> MINUTES_30
             }
             sliderLayoutManager.smoothScroll(binding.recyclerView, minutes - 1)
-        }
+        }.also { binding.minutes45.isChecked = true }
     }
 
     private fun startRunningTimerActivity() {

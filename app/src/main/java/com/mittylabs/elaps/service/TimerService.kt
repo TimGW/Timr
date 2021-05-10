@@ -56,7 +56,7 @@ class TimerService : Service() {
         }
         startForeground(NOTIFICATION_ID, TimerController.createNotification(this, timerLength))
 
-        timer = createCountDownTimer(timerLength).start()
+        timer = createCountDownTimer(timerRemainingMillis).start()
         timerState = TimerController.updateTimerState(TimerState.RUNNING)
     }
 

@@ -14,8 +14,7 @@ import kotlin.math.abs
 
 class SliderLayoutManager(
     context: Context?,
-    private val screenWidth: Int = 0,
-    private val itemPadding: Float = 0F
+    private val screenWidth: Int = 0
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
     var onScroll: ((Int) -> Unit)? = null
 
@@ -37,7 +36,7 @@ class SliderLayoutManager(
                     view.viewTreeObserver.removeOnPreDrawListener(this)
                 }
                 val offset = (screenWidth - view.width) / 2F
-                val padding = ((screenWidth / 2f) - itemPadding - offset).toInt()
+                val padding = ((screenWidth / 2f) - offset).toInt()
                 view.setPadding(padding, 0, padding, 0)
 
                 return true

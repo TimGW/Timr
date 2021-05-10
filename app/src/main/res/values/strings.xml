@@ -11,6 +11,7 @@
     <string name="notification_action_pause">Pauzeren</string>
     <string name="notification_action_extend">5 min. toevoegen</string>
     <string name="notification_content_text">Timer %1$s</string>
+    <string name="notification_state_finished">klaar</string>
     <string name="notification_state_stopped">gestopt</string>
     <string name="notification_action_start">starten</string>
     <string name="notification_action_terminate">verwijderen</string>
