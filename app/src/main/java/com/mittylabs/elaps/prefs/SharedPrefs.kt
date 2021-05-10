@@ -7,14 +7,14 @@ class SharedPrefs(
 ) {
 
     fun getTimerLength(): Long {
-        return preferences.getLongValue(TIMER_LENGTH_ID, 0L)
+        return preferences.getLongValue(TIMER_LENGTH_ID, 30000L)
     }
     fun setTimerLength(length: Long) {
-        preferences.setLongValue(TIMER_STATE_ID, length)
+        preferences.setLongValue(TIMER_LENGTH_ID, length)
     }
 
     fun getTimerState(): TimerState {
-        val ordinal = preferences.getIntValue(TIMER_STATE_ID, 0)
+        val ordinal = preferences.getIntValue(TIMER_STATE_ID, TimerState.TERMINATED.ordinal)
         return TimerState.values()[ordinal]
     }
     fun setTimerState(state: TimerState) {
