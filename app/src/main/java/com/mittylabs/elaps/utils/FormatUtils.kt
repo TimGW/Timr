@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui
+package com.mittylabs.elaps.utils
 
 import java.util.concurrent.TimeUnit
 

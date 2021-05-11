@@ -5,12 +5,12 @@ import android.content.Intent
 import android.os.*
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mittylabs.elaps.ui.main.TimerState
-import com.mittylabs.elaps.ui.toHumanFormat
+import com.mittylabs.elaps.utils.toHumanFormat
 
 class TimerService : Service() {
 
     companion object {
-        private const val COUNTDOWN_TICK_INTERVAL = 1000L
+        private const val TICK_INTERVAL = 1000L
         private const val FIVE_MINUTES_IN_MILLIS = 1000 * 60 * 5
         const val NOTIFICATION_ID = 2308
 
@@ -30,6 +30,18 @@ class TimerService : Service() {
     private lateinit var timer: CountDownTimer
     private var timerLengthMillis: Long = 0L
     private var timerRemainingMillis: Long = 0L
+    private var elapsedTime = 0L
+    private var handler: Handler = Handler(Looper.getMainLooper())
+    private var finishedRunnable: Runnable = object : Runnable {
+        override fun run() {
+            try {
+                elapsedTime += TICK_INTERVAL
+                NotificationController.updateFinishedState(this@TimerService, elapsedTime)
+            } finally {
+                handler.postDelayed(this, TICK_INTERVAL)
+            }
+        }
+    }
 
     override fun onBind(intent: Intent): IBinder? = null
 
@@ -54,7 +66,7 @@ class TimerService : Service() {
             timerLengthMillis = timerLength
             timerRemainingMillis = timerLength
         }
-        startForeground(NOTIFICATION_ID, TimerController.createNotification(this, timerLength))
+        startForeground(NOTIFICATION_ID, NotificationController.createNotification(this, timerLength))
 
         timer = createCountDownTimer(timerRemainingMillis).start()
         timerState = TimerController.updateTimerState(TimerState.RUNNING)
@@ -63,21 +75,21 @@ class TimerService : Service() {
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
         timerState = TimerController.updateTimerState(TimerState.PAUSED)
-        TimerController.updatePauseState(this, timerRemainingMillis.toHumanFormat())
+        NotificationController.updatePauseState(this, timerRemainingMillis.toHumanFormat())
 //      fixme stopForeground(false) this will kill the service by the system after ~2 min
     }
 
     private fun stopTimer() {
         if (::timer.isInitialized) timer.cancel()
         timerState = TimerController.updateTimerState(TimerState.STOPPED)
-        TimerController.updateStopState(this@TimerService)
-
+        NotificationController.updateStopState(this@TimerService)
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
         timerState = TimerController.updateTimerState(TimerState.TERMINATED)
-        TimerController.removeNotification(this) // todo broadcast resetUI ?
+        NotificationController.removeNotification(this) // todo broadcast resetUI ?
+        handler.removeCallbacks(finishedRunnable)
         stopSelf()
     }
 
@@ -87,6 +99,7 @@ class TimerService : Service() {
             timerRemainingMillis += FIVE_MINUTES_IN_MILLIS
 
             timer.cancel()
+            handler.removeCallbacks(finishedRunnable)
             timer = createCountDownTimer(timerRemainingMillis).start()
 
             timerState = TimerController.updateTimerState(TimerState.RUNNING)
@@ -94,16 +107,17 @@ class TimerService : Service() {
     }
 
     private fun createCountDownTimer(millisInFuture: Long) =
-        object : CountDownTimer(millisInFuture, COUNTDOWN_TICK_INTERVAL) {
+        object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
+
             override fun onFinish() {
                 timerState = TimerController.updateTimerState(TimerState.STOPPED)
-                TimerController.updateStopState(this@TimerService, true)
+                finishedRunnable.run()
             }
 
             override fun onTick(millisUntilFinished: Long) {
                 timerRemainingMillis = millisUntilFinished
                 TimerController.updateUntilFinished(timerLengthMillis, millisUntilFinished)
-                TimerController.updateTimeLeft(
+                NotificationController.updateTimeLeft(
                     this@TimerService,
                     timerRemainingMillis.toHumanFormat()
                 )

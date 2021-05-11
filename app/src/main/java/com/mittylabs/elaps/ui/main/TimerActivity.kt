@@ -4,10 +4,10 @@ import android.app.Activity
 import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.os.Build.*
 import android.os.Bundle
 import android.provider.Settings
+import android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
@@ -18,7 +18,7 @@ import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.service.TimerController
 import com.mittylabs.elaps.ui.main.TimerSetupActivity.Companion.INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS
 import com.mittylabs.elaps.ui.main.TimerState.*
-import com.mittylabs.elaps.ui.toHumanFormat
+import com.mittylabs.elaps.utils.toHumanFormat
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.properties.Delegates
@@ -43,11 +43,9 @@ class TimerActivity : Activity() {
         setContentView(binding.root)
 
         timerRemainingMillis = timerLengthMillis
-        timer = TimerController.Builder(this).setContentIntent(
-            Intent(this, TimerActivity::class.java).let { intent ->
-                getActivity(this, 0, intent, FLAG_UPDATE_CURRENT)
-            }
-        ).apply { if (savedInstanceState == null) play(timerRemainingMillis) } // todo restore state from sharedpref otherwise timer will run when activity is destroyed
+        timer = TimerController.Builder(this).apply {
+            if (savedInstanceState == null) play(timerRemainingMillis)
+        } // todo restore state from sharedpref otherwise timer will run when activity is destroyed
 
         initTimerListeners()
         initButtonListeners()
@@ -79,7 +77,6 @@ class TimerActivity : Activity() {
             timerState = state
             updateTimerState(timerState)
         }.setOnFinishListener {
-            Toast.makeText(this, "timer finished", Toast.LENGTH_SHORT).show()
             updateProgress(timerLengthMillis, timerLengthMillis)
         }
     }

@@ -15,4 +15,6 @@
     <string name="notification_state_stopped">gestopt</string>
     <string name="notification_action_start">starten</string>
     <string name="notification_action_terminate">verwijderen</string>
+    <string name="channel_timer_running_desc">Make sound</string>
+    <string name="channel_timer_finished_desc">Make sound and pop on screen</string>
 </resources>

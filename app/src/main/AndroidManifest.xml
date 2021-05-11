@@ -8,6 +8,8 @@
     <!-- Required for 29+. -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+
     <application
         android:name=".ElapsApp"
         android:allowBackup="true"
