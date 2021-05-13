@@ -1,13 +1,11 @@
 package com.mittylabs.elaps.service
 
 import android.app.Notification
-import android.app.Notification.DEFAULT_ALL
-import android.app.Notification.VISIBILITY_PUBLIC
+import android.app.Notification.*
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_UPDATE_CURRENT
-import android.app.PendingIntent.getService
+import android.app.PendingIntent.*
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -48,18 +46,15 @@ object NotificationController {
     fun createNotification(context: Context, timerLength: Long): Notification {
         createChannels(context)
 
-        val pauseIntent = Intent(context, TimerService::class.java).apply { action = PAUSE_ACTION }
-        val stopIntent = Intent(context, TimerService::class.java).apply { action = STOP_ACTION }
-        val terminateIntent =
-            Intent(context, TimerService::class.java).apply { action = TERMINATE_ACTION }
-        val extendIntent =
-            Intent(context, TimerService::class.java).apply { action = EXTEND_ACTION }
+        val pIntent = Intent(context, TimerService::class.java).apply { action = PAUSE_ACTION }
+        val sIntent = Intent(context, TimerService::class.java).apply { action = STOP_ACTION }
+        val tIntent = Intent(context, TimerService::class.java).apply { action = TERMINATE_ACTION }
+        val eIntent = Intent(context, TimerService::class.java).apply { action = EXTEND_ACTION }
 
-        pausePendingIntent = getService(context, REQUEST_CODE, pauseIntent, FLAG_UPDATE_CURRENT)
-        stopPendingIntent = getService(context, REQUEST_CODE, stopIntent, FLAG_UPDATE_CURRENT)
-        terminatePendingIntent =
-            getService(context, REQUEST_CODE, terminateIntent, FLAG_UPDATE_CURRENT)
-        extendPendingIntent = getService(context, REQUEST_CODE, extendIntent, FLAG_UPDATE_CURRENT)
+        pausePendingIntent = getService(context, REQUEST_CODE, pIntent, FLAG_UPDATE_CURRENT)
+        stopPendingIntent = getService(context, REQUEST_CODE, sIntent, FLAG_UPDATE_CURRENT)
+        terminatePendingIntent = getService(context, REQUEST_CODE, tIntent, FLAG_UPDATE_CURRENT)
+        extendPendingIntent = getService(context, REQUEST_CODE, eIntent, FLAG_UPDATE_CURRENT)
 
         timerLengthMillis = timerLength
 
@@ -72,40 +67,90 @@ object NotificationController {
     }
 
     fun updatePauseState(context: Context, remainingTimeMillis: String) {
-        NotificationManagerCompat.from(context)
-            .notify(NOTIFICATION_ID, pauseStateNotification(context, remainingTimeMillis))
+        val notification = baseNotificationBuilder(
+            context,
+            remainingTimeMillis,
+            context.getString(R.string.notification_state_paused)
+        ).apply {
+            addAction(
+                R.drawable.ic_play_white,
+                context.getString(R.string.notification_action_resume),
+                getPlayPendingIntent(context, true)
+            )
+            addAction(
+                R.drawable.ic_stop_white,
+                context.getString(R.string.notification_action_stop),
+                stopPendingIntent
+            )
+        }.build()
+
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     }
 
     fun updateStopState(context: Context) {
-        NotificationManagerCompat.from(context)
-            .notify(NOTIFICATION_ID, stoppedStateNotification(context))
+        val notification = baseNotificationBuilder(
+            context,
+            timerLengthMillis.toHumanFormat(),
+            context.getString(R.string.notification_state_stopped)
+        ).apply {
+            addAction(
+                R.drawable.ic_play_white,
+                context.getString(R.string.notification_action_start),
+                getPlayPendingIntent(context, false)
+            )
+            addAction(
+                R.drawable.ic_clear_white,
+                context.getString(R.string.notification_action_terminate),
+                terminatePendingIntent
+            )
+        }.build()
+
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     }
 
     fun updateFinishedState(context: Context, elapsedTime: Long) {
-        NotificationManagerCompat.from(context).notify(
-            NOTIFICATION_ID, finishedStateNotification(
-                context,
-                elapsedTime
+        val notification = baseNotificationBuilder(
+            context,
+            "- ${elapsedTime.toHumanFormat()}",
+            context.getString(R.string.notification_state_finished),
+            channelIdFinishedTimers
+        ).apply {
+            if (VERSION.SDK_INT >= VERSION_CODES.N) priority = NotificationManager.IMPORTANCE_HIGH
+            setOnlyAlertOnce(false)
+            setDefaults(DEFAULT_LIGHTS)
+            setSound(getNotificationSound(context))
+            setCategory(NotificationCompat.CATEGORY_ALARM)
+            addAction(
+                R.drawable.ic_clear_white,
+                context.getString(R.string.notification_action_terminate),
+                terminatePendingIntent
             )
-        )
+            addAction(
+                R.drawable.ic_add_time_white,
+                context.getString(R.string.notification_action_extend),
+                extendPendingIntent
+            )
+        }.build()
+
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification)
     }
 
     fun removeNotification(context: Context) {
         NotificationManagerCompat.from(context).cancelAll()
     }
 
+    private fun getNotificationSound(context: Context) = Uri.parse(
+        "android.resource://" +
+                context.packageName +
+                "/" +
+                R.raw.alarm_sound
+    )
+
     private fun createChannels(context: Context) {
         channelIdRunningTimers = "${context.packageName}.timer.running"
         channelIdFinishedTimers = "${context.packageName}.timer.finished"
 
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            val soundUri: Uri = Uri.parse(
-                "android.resource://" +
-                        context.packageName +
-                        "/" +
-                        R.raw.alarm_sound
-            )
-
             val attributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_ALARM)
                 .setContentType(CONTENT_TYPE_SONIFICATION)
@@ -128,9 +173,8 @@ object NotificationController {
                 description = context.getString(R.string.channel_timer_finished_desc)
                 lockscreenVisibility = VISIBILITY_PUBLIC
                 setBypassDnd(true)
-                setSound(soundUri, attributes)
+                setSound(getNotificationSound(context), attributes)
                 enableLights(true)
-                enableVibration(true)
             }
 
             NotificationManagerCompat.from(context).createNotificationChannels(
@@ -142,7 +186,7 @@ object NotificationController {
     private fun baseNotificationBuilder(
         context: Context,
         timeLeft: String,
-        contentPostFix: String,
+        contentPostFix: String = "",
         timerChannel: String = channelIdRunningTimers
     ) = NotificationCompat.Builder(context, timerChannel).apply {
         setSmallIcon(R.drawable.ic_timer)
@@ -161,76 +205,11 @@ object NotificationController {
     private fun playStateNotification(
         context: Context,
         remainingTimeMillis: String
-    ) = baseNotificationBuilder(context, remainingTimeMillis, "").apply {
+    ) = baseNotificationBuilder(context, remainingTimeMillis).apply {
         addAction(
             R.drawable.ic_pause_white,
             context.getString(R.string.notification_action_pause),
             pausePendingIntent
-        )
-        addAction(
-            R.drawable.ic_add_time_white,
-            context.getString(R.string.notification_action_extend),
-            extendPendingIntent
-        )
-    }.build()
-
-    private fun pauseStateNotification(
-        context: Context,
-        remainingTimeMillis: String
-    ): Notification = baseNotificationBuilder(
-        context,
-        remainingTimeMillis,
-        context.getString(R.string.notification_state_paused)
-    ).apply {
-        addAction(
-            R.drawable.ic_play_white,
-            context.getString(R.string.notification_action_resume),
-            getPlayPendingIntent(context, true)
-        )
-        addAction(
-            R.drawable.ic_stop_white,
-            context.getString(R.string.notification_action_stop),
-            stopPendingIntent
-        )
-    }.build()
-
-    private fun stoppedStateNotification(
-        context: Context
-    ): Notification = baseNotificationBuilder(
-        context,
-        timerLengthMillis.toHumanFormat(),
-        context.getString(R.string.notification_state_stopped)
-    ).apply {
-        addAction(
-            R.drawable.ic_play_white,
-            context.getString(R.string.notification_action_start),
-            getPlayPendingIntent(context, false)
-        )
-        addAction(
-            R.drawable.ic_clear_white,
-            context.getString(R.string.notification_action_terminate),
-            terminatePendingIntent
-        )
-    }.build()
-
-    private fun finishedStateNotification(
-        context: Context,
-        elapsedTime: Long
-    ): Notification = baseNotificationBuilder(
-        context,
-        "- ${elapsedTime.toHumanFormat()}",
-        context.getString(R.string.notification_state_finished),
-        channelIdFinishedTimers
-    ).apply {
-        if (VERSION.SDK_INT >= VERSION_CODES.N) priority = NotificationManager.IMPORTANCE_HIGH
-        setAutoCancel(true)
-        setOnlyAlertOnce(false)
-        setDefaults(DEFAULT_ALL)
-        setCategory(NotificationCompat.CATEGORY_ALARM)
-        addAction(
-            R.drawable.ic_clear_white,
-            context.getString(R.string.notification_action_terminate),
-            terminatePendingIntent
         )
         addAction(
             R.drawable.ic_add_time_white,

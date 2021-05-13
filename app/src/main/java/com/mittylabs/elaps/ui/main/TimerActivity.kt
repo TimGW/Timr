@@ -31,7 +31,8 @@ class TimerActivity : Activity() {
     private val sharedPrefs: SharedPrefs by inject()
 
     private val timerLengthMillis by lazy {
-        intent.getLongExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, 30000L)
+        3000L
+//        intent.getLongExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, 30000L)
     }
 
     private var timerRemainingMillis by Delegates.notNull<Long>()
@@ -113,10 +114,10 @@ class TimerActivity : Activity() {
     }
 
     private fun updateProgress(length: Long, remaining: Long, animate: Boolean = false) {
-        binding.timerProgressBar.max = length.toInt() // required to support adding 5 minutes
+        binding.timerProgressBar.max = (length - 1000L).toInt() // required to support adding 5 minutes
         binding.timerTextView.text = remaining.toHumanFormat()
 
-        val progress = calcProgress(length, remaining).toInt()
+        val progress = calcProgress(length - 1000, remaining - 1000).toInt()
         if (VERSION.SDK_INT >= VERSION_CODES.N) {
             binding.timerProgressBar.setProgress(progress, animate)
         } else {

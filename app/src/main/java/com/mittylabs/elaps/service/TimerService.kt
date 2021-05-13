@@ -14,7 +14,6 @@ class TimerService : Service() {
         private const val FIVE_MINUTES_IN_MILLIS = 1000 * 60 * 5
         const val NOTIFICATION_ID = 2308
 
-        // todo extract action for RESUME
         const val START_ACTION = "PLAY"
         const val PAUSE_ACTION = "PAUSE"
         const val STOP_ACTION = "STOP"
@@ -31,8 +30,8 @@ class TimerService : Service() {
     private var timerLengthMillis: Long = 0L
     private var timerRemainingMillis: Long = 0L
     private var elapsedTime = 0L
-    private var handler: Handler = Handler(Looper.getMainLooper())
-    private var finishedRunnable: Runnable = object : Runnable {
+    private val handler: Handler = Handler(Looper.getMainLooper())
+    private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {
             try {
                 elapsedTime += TICK_INTERVAL
@@ -76,7 +75,6 @@ class TimerService : Service() {
         if (::timer.isInitialized) timer.cancel()
         timerState = TimerController.updateTimerState(TimerState.PAUSED)
         NotificationController.updatePauseState(this, timerRemainingMillis.toHumanFormat())
-//      fixme stopForeground(false) this will kill the service by the system after ~2 min
     }
 
     private fun stopTimer() {
@@ -88,8 +86,8 @@ class TimerService : Service() {
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
         timerState = TimerController.updateTimerState(TimerState.TERMINATED)
-        NotificationController.removeNotification(this) // todo broadcast resetUI ?
         handler.removeCallbacks(finishedRunnable)
+        NotificationController.removeNotification(this) // todo broadcast resetUI ?
         stopSelf()
     }
 
