@@ -3,16 +3,21 @@ package com.mittylabs.elaps.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.mittylabs.elaps.service.NotificationController.NOTIFICATION_ID
+import com.mittylabs.elaps.service.NotificationController.createNotification
+import com.mittylabs.elaps.service.NotificationController.removeNotifications
+import com.mittylabs.elaps.service.NotificationController.updateFinishedState
+import com.mittylabs.elaps.service.NotificationController.updatePauseState
+import com.mittylabs.elaps.service.NotificationController.updateStopState
+import com.mittylabs.elaps.service.NotificationController.updateTimeLeft
+import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.main.TimerState
-import com.mittylabs.elaps.utils.toHumanFormat
 
 class TimerService : Service() {
 
     companion object {
         private const val TICK_INTERVAL = 1000L
         private const val FIVE_MINUTES_IN_MILLIS = 1000 * 60 * 5
-        const val NOTIFICATION_ID = 2308
 
         const val START_ACTION = "PLAY"
         const val PAUSE_ACTION = "PAUSE"
@@ -23,19 +28,20 @@ class TimerService : Service() {
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
         const val TIMER_PAUSED_STATE_EXTRA = "timerIsPausingState"
 
-        var timerState = TimerState.TERMINATED
+        var timerState: TimerState = TimerState.Initialize(0L, 0L)
     }
 
     private lateinit var timer: CountDownTimer
-    private var timerLengthMillis: Long = 0L
-    private var timerRemainingMillis: Long = 0L
-    private var elapsedTime = 0L
+    private var timeLength: Long = 0L
+    private var timeRemaining: Long = 0L
+    private var timeElapsed = 0L
     private val handler: Handler = Handler(Looper.getMainLooper())
     private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {
             try {
-                elapsedTime += TICK_INTERVAL
-                NotificationController.updateFinishedState(this@TimerService, elapsedTime)
+                timeElapsed -= TICK_INTERVAL
+                broadcast(TimerState.Finished(timeLength, timeRemaining, timeElapsed))
+                updateFinishedState(timeElapsed)
             } finally {
                 handler.postDelayed(this, TICK_INTERVAL)
             }
@@ -62,71 +68,65 @@ class TimerService : Service() {
 
     private fun playTimer(timerLength: Long, isPausingState: Boolean) {
         if (!isPausingState) {
-            timerLengthMillis = timerLength
-            timerRemainingMillis = timerLength
+            timeLength = timerLength
+            timeRemaining = timerLength
         }
-        startForeground(NOTIFICATION_ID, NotificationController.createNotification(this, timerLength))
-
-        timer = createCountDownTimer(timerRemainingMillis).start()
-        timerState = TimerController.updateTimerState(TimerState.RUNNING)
+        startForeground(NOTIFICATION_ID, createNotification(timerLength))
+        timer = createCountDownTimer(timeRemaining).start()
+        broadcast(TimerState.Running(timerLength, timeRemaining))
     }
 
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerController.updateTimerState(TimerState.PAUSED)
-        NotificationController.updatePauseState(this, timerRemainingMillis.toHumanFormat())
+        broadcast(TimerState.Paused(timeLength, timeRemaining))
+        updatePauseState(timeRemaining)
     }
 
     private fun stopTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerController.updateTimerState(TimerState.STOPPED)
-        NotificationController.updateStopState(this@TimerService)
+        broadcast(TimerState.Stopped(timeLength, timeRemaining))
+        updateStopState()
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
-        timerState = TimerController.updateTimerState(TimerState.TERMINATED)
+        broadcast(TimerState.Terminated(timeLength, timeRemaining))
         handler.removeCallbacks(finishedRunnable)
-        NotificationController.removeNotification(this) // todo broadcast resetUI ?
+        removeNotifications()
         stopSelf()
     }
 
     private fun extendTimer() {
         if (::timer.isInitialized) {
-            timerLengthMillis += FIVE_MINUTES_IN_MILLIS
-            timerRemainingMillis += FIVE_MINUTES_IN_MILLIS
+            timeLength += FIVE_MINUTES_IN_MILLIS
+            timeRemaining += FIVE_MINUTES_IN_MILLIS
 
             timer.cancel()
             handler.removeCallbacks(finishedRunnable)
-            timer = createCountDownTimer(timerRemainingMillis).start()
+            timer = createCountDownTimer(timeRemaining).start()
 
-            timerState = TimerController.updateTimerState(TimerState.RUNNING)
+            broadcast(TimerState.Running(timeLength, timeRemaining))
         }
+    }
+
+    private fun broadcast(state: TimerState) {
+        timerState = state
+        sendBroadcast(Intent(INTENT_EXTRA_TIMER).apply {
+            putExtra(INTENT_EXTRA_TIMER, timerState)
+        })
     }
 
     private fun createCountDownTimer(millisInFuture: Long) =
         object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
 
             override fun onFinish() {
-                timerState = TimerController.updateTimerState(TimerState.STOPPED)
                 finishedRunnable.run()
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                timerRemainingMillis = millisUntilFinished
-                TimerController.updateUntilFinished(timerLengthMillis, millisUntilFinished)
-                NotificationController.updateTimeLeft(
-                    this@TimerService,
-                    timerRemainingMillis.toHumanFormat()
-                )
+                timeRemaining = millisUntilFinished
+                broadcast(TimerState.Running(timeLength, millisUntilFinished))
+                updateTimeLeft(timeRemaining)
             }
         }
-
-    //            val timerInfoIntent = Intent(TIME_INFO).apply {
-//                putExtra(INTENT_EXTRA_RESULT, remainingMillis)
-//                putExtra(INTENT_EXTRA_INITIAL_TIME, initialTimeInMillis)
-//            }
-    private fun broadcastIntent(intent: Intent) {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
-    }
 }

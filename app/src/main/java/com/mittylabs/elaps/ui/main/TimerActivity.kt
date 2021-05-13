@@ -1,131 +1,104 @@
 package com.mittylabs.elaps.ui.main
 
 import android.app.Activity
-import android.app.PendingIntent.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build.*
+import android.content.IntentFilter
 import android.os.Bundle
-import android.provider.Settings
-import android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
-import android.widget.Toast
-import com.mittylabs.blink
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
-import com.mittylabs.elaps.prefs.SharedPrefs
-import com.mittylabs.elaps.service.TimerController
-import com.mittylabs.elaps.ui.main.TimerSetupActivity.Companion.INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS
+import com.mittylabs.elaps.service.Timer.pause
+import com.mittylabs.elaps.service.Timer.play
+import com.mittylabs.elaps.service.Timer.stop
+import com.mittylabs.elaps.service.Timer.terminate
 import com.mittylabs.elaps.ui.main.TimerState.*
+import com.mittylabs.elaps.utils.blink
 import com.mittylabs.elaps.utils.toHumanFormat
-import org.koin.android.ext.android.inject
-import java.util.*
-import kotlin.properties.Delegates
 
 class TimerActivity : Activity() {
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: ActivityTimerBinding
-    private lateinit var timer: TimerController.Builder
-
-    private val sharedPrefs: SharedPrefs by inject()
-
-    private val timerLengthMillis by lazy {
-        3000L
-//        intent.getLongExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, 30000L)
-    }
-
-    private var timerRemainingMillis by Delegates.notNull<Long>()
     private lateinit var timerState: TimerState
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if (intent.action == INTENT_EXTRA_TIMER) timerState = fetchTimerState(intent)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        timerRemainingMillis = timerLengthMillis
-        timer = TimerController.Builder(this).apply {
-            if (savedInstanceState == null) play(timerRemainingMillis)
-        } // todo restore state from sharedpref otherwise timer will run when activity is destroyed
-
-        initTimerListeners()
         initButtonListeners()
 
-        binding.timerProgressBar.max = timerLengthMillis.toInt()
-        binding.timerTextView.text = timerLengthMillis.toHumanFormat()
+        timerState = savedInstanceState?.let {
+            val state = it.getParcelable<TimerState>(INTENT_EXTRA_TIMER) as TimerState
+            updateTimerState(state); state
+        } ?: fetchTimerState(intent)
     }
 
     override fun onResume() {
         super.onResume()
-
-//        updateProgress(sharedPrefs.getTimerLength(), sharedPrefs.getTimeRemaining())
-//        if (::timerState.isInitialized) updateTimerState(sharedPrefs.getTimerState())
+        registerReceiver(receiver, IntentFilter().apply { addAction(INTENT_EXTRA_TIMER) })
     }
 
     override fun onPause() {
         super.onPause()
-
-//        sharedPrefs.setTimeRemaining(timerRemainingMillis)
-//        sharedPrefs.setTimerLength(timerLengthMillis)
-//        if (::timerState.isInitialized) sharedPrefs.setTimerState(timerState)
+        unregisterReceiver(receiver)
     }
 
-    private fun initTimerListeners() {
-        timer.setOnTickListener { timerLengthMillis, millisUntilFinished ->
-            timerRemainingMillis = millisUntilFinished
-            updateProgress(timerLengthMillis, millisUntilFinished, true)
-        }.setOnStateChangedListener { state ->
-            timerState = state
-            updateTimerState(timerState)
-        }.setOnFinishListener {
-            updateProgress(timerLengthMillis, timerLengthMillis)
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        savedInstanceState.putParcelable(INTENT_EXTRA_TIMER, timerState)
+    }
+
+    private fun fetchTimerState(intent: Intent) =
+        (intent.getParcelableExtra<TimerState>(INTENT_EXTRA_TIMER) as TimerState).also {
+            updateTimerState(it)
         }
-    }
 
     private fun initButtonListeners() {
-        binding.timerTerminateButton.setOnClickListener { timer.terminate() }
+        binding.timerTerminateButton.setOnClickListener { terminate() }
 
         onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { _, isPaused ->
-            if (isPaused) timer.pause() else timer.play(timerLengthMillis)
+            if (isPaused) pause() else play(timerState.initialTime)
         }.also {
             binding.timerStartPauseToggleButton.setOnCheckedChangeListener(it)
         }
 
-        binding.timerResetButton.setOnClickListener { timer.stop() }
+        binding.timerResetButton.setOnClickListener { stop() }
     }
 
     private fun updateTimerState(timerState: TimerState) {
         binding.timerTextView.clearAnimation()
 
         when (timerState) {
-            RUNNING -> { }
-            PAUSED -> binding.timerTextView.blink()
-            STOPPED -> updateProgress(timerLengthMillis, timerLengthMillis)
-            TERMINATED -> {
-                finish()
-                startActivity(TimerSetupActivity.launchingIntent(this@TimerActivity))
+            is Running -> updateProgress(timerState.initialTime, timerState.remainingTime)
+            is Paused -> {
+                updateProgress(timerState.initialTime, timerState.remainingTime)
+                binding.timerTextView.blink()
             }
+            is Stopped -> updateProgress(timerState.initialTime, timerState.initialTime)
+            is Terminated -> finish()
+            is Finished -> binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
+            is Initialize -> play(timerState.initialTime)
         }
 
         // temporary disable listener to update the toggle button state
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(null)
-        binding.timerStartPauseToggleButton.isChecked = timerState != RUNNING
+        binding.timerStartPauseToggleButton.isChecked = timerState !is Running
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
     }
 
-    private fun updateProgress(length: Long, remaining: Long, animate: Boolean = false) {
-        binding.timerProgressBar.max = (length - 1000L).toInt() // required to support adding 5 minutes
+    private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-
-        val progress = calcProgress(length - 1000, remaining - 1000).toInt()
-        if (VERSION.SDK_INT >= VERSION_CODES.N) {
-            binding.timerProgressBar.setProgress(progress, animate)
-        } else {
-            binding.timerProgressBar.progress = progress
-        }
+        binding.timerProgressBar.max = (length - 1000L).toInt() // required to support adding 5 minutes
+        binding.timerProgressBar.progress = ((length - 1000L) - (remaining - 1000L)).toInt()
     }
-
-    private fun calcProgress(length: Long, remaining: Long) = length - remaining
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -153,22 +126,6 @@ class TimerActivity : Activity() {
             return Intent(ctx, TimerActivity::class.java)
         }
 
-//                fun setAlarm(context: Context, nowSeconds: Long, secondsRemaining: Long): Long {
-//            val wakeUpTime = (nowSeconds + secondsRemaining) * 1000
-//            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//            val intent = Intent(context, TimerExpiredReceiver::class.java)
-//            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
-//            alarmManager.setExact(AlarmManager.RTC_WAKEUP, wakeUpTime, pendingIntent)
-//            PrefUtil.setAlarmSetTime(nowSeconds, context)
-//            return wakeUpTime
-//        }
-//
-//        fun removeAlarm(context: Context) {
-//            val intent = Intent(context, TimerExpiredReceiver::class.java)
-//            val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
-//            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//            alarmManager.cancel(pendingIntent)
-//            PrefUtil.setAlarmSetTime(0, context)
-//        }
+        const val INTENT_EXTRA_TIMER = "INTENT_EXTRA_TIMER"
     }
 }

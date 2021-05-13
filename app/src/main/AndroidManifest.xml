@@ -26,9 +26,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.main.TimerActivity"
-            android:launchMode="singleTop" />
+        <activity android:name=".ui.main.TimerActivity" />
 
         <service
             android:name=".service.TimerService"

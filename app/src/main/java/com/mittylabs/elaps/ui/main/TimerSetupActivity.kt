@@ -3,17 +3,18 @@ package com.mittylabs.elaps.ui.main
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
-import android.media.RingtoneManager
 import android.os.Bundle
-import android.provider.Settings
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
+import com.mittylabs.elaps.prefs.SharedPrefs
+import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import org.koin.android.ext.android.inject
 
 class TimerSetupActivity : Activity() {
     private lateinit var binding: ActivityTimerSettingsBinding
     private lateinit var sliderLayoutManager: SliderLayoutManager
+    private val sharedPrefs: SharedPrefs by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +24,7 @@ class TimerSetupActivity : Activity() {
         setupRecyclerView()
         setupRadioButtons()
 
+//        if (sharedPrefs.getTimerState() == TimerState.TERMINATED) startRunningTimerActivity()
         binding.timerStartButton.setOnClickListener { startRunningTimerActivity() }
     }
 
@@ -53,17 +55,17 @@ class TimerSetupActivity : Activity() {
                 else -> MINUTES_30
             }
             sliderLayoutManager.smoothScroll(binding.recyclerView, minutes - 1)
-        }.also { binding.minutes45.isChecked = true }
+        }
     }
 
     private fun startRunningTimerActivity() {
-        finish()
-
         val intent = TimerActivity.getLaunchingIntent(this)
         val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L * 60L
-        intent.putExtra(INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS, time)
+        intent.putExtra(INTENT_EXTRA_TIMER, TimerState.Initialize(time,time))
 
         startActivity(intent)
+
+        finish()
     }
 
     companion object {
@@ -76,7 +78,5 @@ class TimerSetupActivity : Activity() {
         private const val MINUTES_45 = 45
         private const val MINUTES_60 = 60
         private const val MINUTES_90 = 90
-
-        const val INTENT_EXTRA_TIMER_LENGTH_MILLISECONDS = "TIMER_LENGTH_MILLISECONDS"
     }
 }

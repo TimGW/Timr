@@ -6,13 +6,16 @@ import java.util.concurrent.TimeUnit
  * milliseconds to readable timer format
  */
 fun Long.toHumanFormat(): String {
+    val baseString = if (this < 0L) "-%02d:%02d:%02d" else "%02d:%02d:%02d"
+    val time = Math.abs(this)
+
     return String.format(
-        "%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(this),
-        TimeUnit.MILLISECONDS.toMinutes(this) - TimeUnit.HOURS.toMinutes(
-            TimeUnit.MILLISECONDS.toHours(this)
+        baseString, TimeUnit.MILLISECONDS.toHours(time),
+        TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(
+            TimeUnit.MILLISECONDS.toHours(time)
         ),
-        TimeUnit.MILLISECONDS.toSeconds(this) - TimeUnit.MINUTES.toSeconds(
-            TimeUnit.MILLISECONDS.toMinutes(this)
+        TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(
+            TimeUnit.MILLISECONDS.toMinutes(time)
         )
     )
 }

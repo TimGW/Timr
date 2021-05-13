@@ -6,34 +6,27 @@ class SharedPrefs(
     private val preferences: SharedPrefManager
 ) {
 
-    fun getTimerLength(): Long {
-        return preferences.getLongValue(TIMER_LENGTH_ID, 30000L)
-    }
-    fun setTimerLength(length: Long) {
-        preferences.setLongValue(TIMER_LENGTH_ID, length)
-    }
-
-    fun getTimerState(): TimerState {
-        val ordinal = preferences.getIntValue(TIMER_STATE_ID, TimerState.TERMINATED.ordinal)
-        return TimerState.values()[ordinal]
-    }
-    fun setTimerState(state: TimerState) {
-        preferences.setIntValue(TIMER_STATE_ID, state.ordinal)
-    }
-
-    fun getTimeRemaining(): Long {
-        return preferences.getLongValue(MILLISECONDS_REMAINING_ID, 0)
-    }
-    fun setTimeRemaining(milliseconds: Long) {
-        preferences.setLongValue(MILLISECONDS_REMAINING_ID, milliseconds)
-    }
-
-    fun getAlarmSetTime(): Long {
-        return preferences.getLongValue(ALARM_SET_TIME_ID, 0)
-    }
-    fun setAlarmSetTime(time: Long) {
-        preferences.setLongValue(ALARM_SET_TIME_ID, time)
-    }
+//    fun getTimerLength(): Long {
+//        return preferences.getLongValue(TIMER_LENGTH_ID, 30000L)
+//    }
+//    fun setTimerLength(length: Long) {
+//        preferences.setLongValue(TIMER_LENGTH_ID, length)
+//    }
+//
+//    fun getTimerState(): TimerState {
+//        val ordinal = preferences.getIntValue(TIMER_STATE_ID, TimerState.INITIALIZE.ordinal)
+//        return TimerState.Running
+//    }
+//    fun setTimerState(state: TimerState) {
+//        preferences.setIntValue(TIMER_STATE_ID, state.ordinal)
+//    }
+//
+//    fun getTimeRemaining(): Long {
+//        return preferences.getLongValue(MILLISECONDS_REMAINING_ID, 0)
+//    }
+//    fun setTimeRemaining(milliseconds: Long) {
+//        preferences.setLongValue(MILLISECONDS_REMAINING_ID, milliseconds)
+//    }
 
     companion object {
         private const val TIMER_LENGTH_ID = "timer_length"
