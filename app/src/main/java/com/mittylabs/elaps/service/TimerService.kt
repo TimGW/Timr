@@ -58,6 +58,8 @@ class TimerService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
+            handler.removeCallbacks(finishedRunnable)
+
             when (intent.action) {
                 START_ACTION -> playTimer(
                     intent.getLongExtra(TIMER_LENGTH_EXTRA, 0L),
@@ -98,7 +100,6 @@ class TimerService : Service() {
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
         broadcast(TimerState.Terminated(initialTimerLength, currentTimeRemaining))
-        handler.removeCallbacks(finishedRunnable)
         removeNotifications()
         stopSelf()
     }
@@ -109,7 +110,6 @@ class TimerService : Service() {
             currentTimeRemaining += FIVE_MINUTES_IN_MILLIS
 
             timer.cancel()
-            handler.removeCallbacks(finishedRunnable)
             timer = createCountDownTimer(currentTimeRemaining)
             timer.start()
         }
@@ -125,9 +125,7 @@ class TimerService : Service() {
     private fun createCountDownTimer(millisInFuture: Long) =
         object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
 
-            override fun onFinish() {
-                finishedRunnable.run()
-            }
+            override fun onFinish() { finishedRunnable.run() }
 
             override fun onTick(millisUntilFinished: Long) {
                 currentTimeRemaining = millisUntilFinished
