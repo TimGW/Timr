@@ -115,7 +115,13 @@ class TimerActivity : Activity() {
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
         binding.timerProgressBar.max = (length - 1000L).toInt()
-        binding.timerProgressBar.progress = ((length - 1000L) - (remaining - 1000L)).toInt()
+
+        val progress = ((length - 1000L) - (remaining - 1000L)).toInt()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            binding.timerProgressBar.setProgress(progress, true)
+        } else {
+            binding.timerProgressBar.progress = progress
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
