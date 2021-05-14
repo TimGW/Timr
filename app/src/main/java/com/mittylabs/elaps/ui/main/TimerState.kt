@@ -7,11 +7,6 @@ sealed class TimerState: Parcelable {
     abstract val initialTime: Long
     abstract var remainingTime: Long
 
-    @Parcelize data class Initialize(
-        override val initialTime: Long,
-        override var remainingTime: Long,
-    ) : TimerState()
-
     @Parcelize data class Running(
         override val initialTime: Long,
         override var remainingTime: Long

@@ -1,31 +1,40 @@
 package com.mittylabs.elaps.ui.main
 
-import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.os.Bundle
+import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
+import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.service.Timer.pause
 import com.mittylabs.elaps.service.Timer.play
 import com.mittylabs.elaps.service.Timer.stop
 import com.mittylabs.elaps.service.Timer.terminate
+import com.mittylabs.elaps.service.TimerService
 import com.mittylabs.elaps.ui.main.TimerState.*
 import com.mittylabs.elaps.utils.blink
 import com.mittylabs.elaps.utils.toHumanFormat
 
-class TimerActivity : Activity() {
+class TimerActivity : AppCompatActivity() {
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: ActivityTimerBinding
     private lateinit var timerState: TimerState
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            if (intent.action == INTENT_EXTRA_TIMER) timerState = fetchTimerState(intent)
+            if (intent.action == INTENT_EXTRA_TIMER) {
+                updateTimerState(intent.getParcelableExtra(INTENT_EXTRA_TIMER))
+            }
         }
+    }
+
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            updateTimerState(TimerService.timerState)
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,10 +44,16 @@ class TimerActivity : Activity() {
 
         initButtonListeners()
 
-        timerState = savedInstanceState?.let {
-            val state = it.getParcelable<TimerState>(INTENT_EXTRA_TIMER) as TimerState
-            updateTimerState(state); state
-        } ?: fetchTimerState(intent)
+        if (savedInstanceState != null) {
+            updateTimerState(savedInstanceState.getParcelable(BUNDLE_EXTRA_TIMER))
+        } else if (intent.hasExtra(INTENT_EXTRA_TIMER_START)) {
+            play(intent.getLongExtra(INTENT_EXTRA_TIMER_START, -1L))
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bindService(Intent(this, TimerService::class.java), connection, BIND_AUTO_CREATE)
     }
 
     override fun onResume() {
@@ -51,15 +66,15 @@ class TimerActivity : Activity() {
         unregisterReceiver(receiver)
     }
 
-    override fun onSaveInstanceState(savedInstanceState: Bundle) {
-        super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putParcelable(INTENT_EXTRA_TIMER, timerState)
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
     }
 
-    private fun fetchTimerState(intent: Intent) =
-        (intent.getParcelableExtra<TimerState>(INTENT_EXTRA_TIMER) as TimerState).also {
-            updateTimerState(it)
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putParcelable(BUNDLE_EXTRA_TIMER, timerState)
+    }
 
     private fun initButtonListeners() {
         binding.timerTerminateButton.setOnClickListener { terminate() }
@@ -73,7 +88,13 @@ class TimerActivity : Activity() {
         binding.timerResetButton.setOnClickListener { stop() }
     }
 
-    private fun updateTimerState(timerState: TimerState) {
+    private fun close() {
+        startActivity(TimerSetupActivity.launchingIntent(this))
+        finish()
+    }
+
+    private fun updateTimerState(timerState: TimerState?) {
+        timerState?.let { this.timerState = it }
         binding.timerTextView.clearAnimation()
 
         when (timerState) {
@@ -83,9 +104,8 @@ class TimerActivity : Activity() {
                 binding.timerTextView.blink()
             }
             is Stopped -> updateProgress(timerState.initialTime, timerState.initialTime)
-            is Terminated -> finish()
             is Finished -> binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
-            is Initialize -> play(timerState.initialTime)
+            is Terminated, null -> close()
         }
 
         // temporary disable listener to update the toggle button state
@@ -96,7 +116,8 @@ class TimerActivity : Activity() {
 
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-        binding.timerProgressBar.max = (length - 1000L).toInt() // required to support adding 5 minutes
+        binding.timerProgressBar.max =
+            (length - 1000L).toInt() // required to support adding 5 minutes
         binding.timerProgressBar.progress = ((length - 1000L) - (remaining - 1000L)).toInt()
     }
 
@@ -127,5 +148,7 @@ class TimerActivity : Activity() {
         }
 
         const val INTENT_EXTRA_TIMER = "INTENT_EXTRA_TIMER"
+        const val BUNDLE_EXTRA_TIMER = "BUNDLE_EXTRA_TIMER"
+        const val INTENT_EXTRA_TIMER_START = "INTENT_EXTRA_TIMER_START"
     }
 }

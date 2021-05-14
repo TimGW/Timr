@@ -28,9 +28,10 @@ class TimerService : Service() {
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
         const val TIMER_PAUSED_STATE_EXTRA = "timerIsPausingState"
 
-        var timerState: TimerState = TimerState.Initialize(0L, 0L)
+        var timerState: TimerState = TimerState.Terminated(0L, 0L)
     }
 
+    private val binder = LocalBinder()
     private lateinit var timer: CountDownTimer
     private var timeLength: Long = 0L
     private var timeRemaining: Long = 0L
@@ -48,7 +49,11 @@ class TimerService : Service() {
         }
     }
 
-    override fun onBind(intent: Intent): IBinder? = null
+    inner class LocalBinder : Binder() {
+        fun getService(): TimerService = this@TimerService
+    }
+
+    override fun onBind(intent: Intent): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
