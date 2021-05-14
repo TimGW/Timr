@@ -3,6 +3,7 @@ package com.mittylabs.elaps.service
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat.startForegroundService
+import com.mittylabs.elaps.service.TimerService.Companion.EXTEND_ACTION
 import com.mittylabs.elaps.service.TimerService.Companion.PAUSE_ACTION
 import com.mittylabs.elaps.service.TimerService.Companion.START_ACTION
 import com.mittylabs.elaps.service.TimerService.Companion.STOP_ACTION
@@ -38,6 +39,14 @@ object Timer {
 
         Intent(this, TimerService::class.java)
             .apply { action = STOP_ACTION }
+            .also { startForegroundService(this, it) }
+    }
+
+    fun Context.extend() {
+        if (TimerService.timerState !is TimerState.Running) return
+
+        Intent(this, TimerService::class.java)
+            .apply { action = EXTEND_ACTION }
             .also { startForegroundService(this, it) }
     }
 

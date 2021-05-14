@@ -1,13 +1,14 @@
 package com.mittylabs.elaps.ui.main
 
+import android.app.Activity
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
-import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
+import com.mittylabs.elaps.service.Timer.extend
 import com.mittylabs.elaps.service.Timer.pause
 import com.mittylabs.elaps.service.Timer.play
 import com.mittylabs.elaps.service.Timer.stop
@@ -17,7 +18,7 @@ import com.mittylabs.elaps.ui.main.TimerState.*
 import com.mittylabs.elaps.utils.blink
 import com.mittylabs.elaps.utils.toHumanFormat
 
-class TimerActivity : AppCompatActivity() {
+class TimerActivity : Activity() {
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: ActivityTimerBinding
     private lateinit var timerState: TimerState
@@ -33,7 +34,6 @@ class TimerActivity : AppCompatActivity() {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             updateTimerState(TimerService.timerState)
         }
-
         override fun onServiceDisconnected(arg0: ComponentName) {}
     }
 
@@ -77,15 +77,13 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun initButtonListeners() {
-        binding.timerTerminateButton.setOnClickListener { terminate() }
-
         onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { _, isPaused ->
             if (isPaused) pause() else play(timerState.initialTime)
-        }.also {
-            binding.timerStartPauseToggleButton.setOnCheckedChangeListener(it)
         }
-
+        binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
+        binding.timerTerminateButton.setOnClickListener { terminate() }
         binding.timerResetButton.setOnClickListener { stop() }
+        binding.timerExtendButton.setOnClickListener { extend() }
     }
 
     private fun close() {
@@ -116,8 +114,7 @@ class TimerActivity : AppCompatActivity() {
 
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-        binding.timerProgressBar.max =
-            (length - 1000L).toInt() // required to support adding 5 minutes
+        binding.timerProgressBar.max = (length - 1000L).toInt()
         binding.timerProgressBar.progress = ((length - 1000L) - (remaining - 1000L)).toInt()
     }
 

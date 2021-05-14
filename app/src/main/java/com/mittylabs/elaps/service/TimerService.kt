@@ -109,8 +109,6 @@ class TimerService : Service() {
             timer.cancel()
             handler.removeCallbacks(finishedRunnable)
             timer = createCountDownTimer(timeRemaining).start()
-
-            broadcast(TimerState.Running(timeLength, timeRemaining))
         }
     }
 
