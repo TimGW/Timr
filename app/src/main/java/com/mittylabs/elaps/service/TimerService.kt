@@ -42,7 +42,13 @@ class TimerService : Service() {
         override fun run() {
             try {
                 timeElapsed -= TICK_INTERVAL
-                broadcast(TimerState.Finished(currentTimerLength, currentTimeRemaining, timeElapsed))
+                broadcast(
+                    TimerState.Finished(
+                        currentTimerLength,
+                        currentTimeRemaining,
+                        timeElapsed
+                    )
+                )
                 updateFinishedState(timeElapsed)
             } finally {
                 handler.postDelayed(this, TICK_INTERVAL)
@@ -122,15 +128,18 @@ class TimerService : Service() {
         })
     }
 
-    private fun createCountDownTimer(millisInFuture: Long) =
-        object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
+    private fun createCountDownTimer(
+        millisInFuture: Long
+    ) = object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
 
-            override fun onFinish() { finishedRunnable.run() }
-
-            override fun onTick(millisUntilFinished: Long) {
-                currentTimeRemaining = millisUntilFinished
-                broadcast(TimerState.Running(currentTimerLength, millisUntilFinished))
-                updateTimeLeft(currentTimeRemaining)
-            }
+        override fun onFinish() {
+            finishedRunnable.run()
         }
+
+        override fun onTick(millisUntilFinished: Long) {
+            currentTimeRemaining = millisUntilFinished
+            broadcast(TimerState.Running(currentTimerLength, millisUntilFinished))
+            updateTimeLeft(currentTimeRemaining)
+        }
+    }
 }
