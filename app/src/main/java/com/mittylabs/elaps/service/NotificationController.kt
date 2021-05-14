@@ -26,7 +26,6 @@ import com.mittylabs.elaps.service.TimerService.Companion.TIMER_LENGTH_EXTRA
 import com.mittylabs.elaps.service.TimerService.Companion.TIMER_PAUSED_STATE_EXTRA
 import com.mittylabs.elaps.ui.main.TimerActivity
 import com.mittylabs.elaps.utils.toHumanFormat
-import kotlin.properties.Delegates
 
 
 object NotificationController {
@@ -39,8 +38,6 @@ object NotificationController {
     private lateinit var stopPendingIntent: PendingIntent
     private lateinit var extendPendingIntent: PendingIntent
     private lateinit var terminatePendingIntent: PendingIntent
-
-    private var timerLengthMillis by Delegates.notNull<Long>()
 
     fun Context.createNotification(timerLength: Long): Notification {
         createChannels(this)
@@ -55,8 +52,6 @@ object NotificationController {
         terminatePendingIntent = getService(this, REQUEST_CODE, tIntent, FLAG_UPDATE_CURRENT)
         extendPendingIntent = getService(this, REQUEST_CODE, eIntent, FLAG_UPDATE_CURRENT)
 
-        timerLengthMillis = timerLength
-
         return playStateNotification(this, timerLength)
     }
 
@@ -65,16 +60,16 @@ object NotificationController {
             .notify(NOTIFICATION_ID, playStateNotification(this, remainingTimeMillis))
     }
 
-    fun Context.updatePauseState(remainingTimeMillis: Long) {
+    fun Context.updatePauseState(currentTimerLength: Long, currentTimeRemaining: Long) {
         val notification = baseNotificationBuilder(
             this,
-            remainingTimeMillis,
+            currentTimeRemaining,
             getString(R.string.notification_state_paused)
         ).apply {
             addAction(
                 R.drawable.ic_play_white,
                 getString(R.string.notification_action_resume),
-                getPlayPendingIntent(this@updatePauseState, true)
+                getPlayPendingIntent(this@updatePauseState, true, currentTimerLength)
             )
             addAction(
                 R.drawable.ic_stop_white,
@@ -86,16 +81,16 @@ object NotificationController {
         NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, notification)
     }
 
-    fun Context.updateStopState() {
+    fun Context.updateStopState(initialTimerLength: Long) {
         val notification = baseNotificationBuilder(
             this,
-            timerLengthMillis,
+            initialTimerLength,
             getString(R.string.notification_state_stopped)
         ).apply {
             addAction(
                 R.drawable.ic_play_white,
                 getString(R.string.notification_action_start),
-                getPlayPendingIntent(this@updateStopState, false)
+                getPlayPendingIntent(this@updateStopState, false, initialTimerLength)
             )
             addAction(
                 R.drawable.ic_clear_white,
@@ -221,7 +216,8 @@ object NotificationController {
 
     private fun getPlayPendingIntent(
         context: Context,
-        isPausingState: Boolean
+        isPausingState: Boolean,
+        timerLengthMillis: Long
     ) = Intent(context, TimerService::class.java).apply {
         action = START_ACTION
         putExtra(TIMER_LENGTH_EXTRA, timerLengthMillis)

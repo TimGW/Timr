@@ -33,15 +33,16 @@ class TimerService : Service() {
 
     private val binder = LocalBinder()
     private lateinit var timer: CountDownTimer
-    private var timeLength: Long = 0L
-    private var timeRemaining: Long = 0L
+    private var initialTimerLength: Long = 0L
+    private var currentTimerLength: Long = 0L
+    private var currentTimeRemaining: Long = 0L
     private var timeElapsed = 0L
     private val handler: Handler = Handler(Looper.getMainLooper())
     private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {
             try {
                 timeElapsed -= TICK_INTERVAL
-                broadcast(TimerState.Finished(timeLength, timeRemaining, timeElapsed))
+                broadcast(TimerState.Finished(currentTimerLength, currentTimeRemaining, timeElapsed))
                 updateFinishedState(timeElapsed)
             } finally {
                 handler.postDelayed(this, TICK_INTERVAL)
@@ -73,29 +74,30 @@ class TimerService : Service() {
 
     private fun playTimer(timerLength: Long, isPausingState: Boolean) {
         if (!isPausingState) {
-            timeLength = timerLength
-            timeRemaining = timerLength
+            currentTimerLength = timerLength
+            currentTimeRemaining = timerLength
+            initialTimerLength = timerLength
         }
         startForeground(NOTIFICATION_ID, createNotification(timerLength))
-        timer = createCountDownTimer(timeRemaining).start()
-        broadcast(TimerState.Running(timerLength, timeRemaining))
+        timer = createCountDownTimer(currentTimeRemaining).start()
+        broadcast(TimerState.Running(timerLength, currentTimeRemaining))
     }
 
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Paused(timeLength, timeRemaining))
-        updatePauseState(timeRemaining)
+        broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining))
+        updatePauseState(currentTimerLength, currentTimeRemaining)
     }
 
     private fun stopTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Stopped(timeLength, timeRemaining))
-        updateStopState()
+        broadcast(TimerState.Stopped(initialTimerLength, currentTimeRemaining))
+        updateStopState(initialTimerLength)
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Terminated(timeLength, timeRemaining))
+        broadcast(TimerState.Terminated(initialTimerLength, currentTimeRemaining))
         handler.removeCallbacks(finishedRunnable)
         removeNotifications()
         stopSelf()
@@ -103,12 +105,13 @@ class TimerService : Service() {
 
     private fun extendTimer() {
         if (::timer.isInitialized) {
-            timeLength += FIVE_MINUTES_IN_MILLIS
-            timeRemaining += FIVE_MINUTES_IN_MILLIS
+            currentTimerLength += FIVE_MINUTES_IN_MILLIS
+            currentTimeRemaining += FIVE_MINUTES_IN_MILLIS
 
             timer.cancel()
             handler.removeCallbacks(finishedRunnable)
-            timer = createCountDownTimer(timeRemaining).start()
+            timer = createCountDownTimer(currentTimeRemaining)
+            timer.start()
         }
     }
 
@@ -127,9 +130,9 @@ class TimerService : Service() {
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                timeRemaining = millisUntilFinished
-                broadcast(TimerState.Running(timeLength, millisUntilFinished))
-                updateTimeLeft(timeRemaining)
+                currentTimeRemaining = millisUntilFinished
+                broadcast(TimerState.Running(currentTimerLength, millisUntilFinished))
+                updateTimeLeft(currentTimeRemaining)
             }
         }
 }
