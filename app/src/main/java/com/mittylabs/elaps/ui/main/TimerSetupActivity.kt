@@ -4,13 +4,17 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
+import com.mittylabs.elaps.settings.SettingsActivity
 import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_START
 import com.mittylabs.elaps.utils.setOnClickListeners
 
-class TimerSetupActivity : Activity() {
+class TimerSetupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerSettingsBinding
     private lateinit var sliderLayoutManager: SliderLayoutManager
 
@@ -23,6 +27,26 @@ class TimerSetupActivity : Activity() {
         setupMinuteButtons()
 
         binding.timerStartButton.setOnClickListener { startRunningTimerActivity() }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_settings, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            R.id.action_settings -> {
+                startActivity(SettingsActivity.launchingIntent(this))
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun setupRecyclerView() {

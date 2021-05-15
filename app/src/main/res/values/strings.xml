@@ -19,4 +19,28 @@
     <string name="channel_timer_finished_desc">Make sound and pop on screen</string>
     <string name="timer_extend_button_text">+ 5:00</string>
     <string name="initial_timer_setting">30</string>
+
+    <string name="preferences_app_version_title">App version</string>
+    <string name="preferences_analytics">User statistics</string>
+    <string name="preferences_analytics_description">By sending anonymous user data, you will help improve this application</string>
+    <string name="preferences_analytics_header">Privacy</string>
+    <string name="preferences_display_dark_mode">Dark mode</string>
+    <string name="preferences_display_header">Display</string>
+    <string name="preferences_about_header">About</string>
+    <string name="privacy_policy_title">Privacy policy</string>
+    <string-array name="night_mode_items">
+        <item>@string/night_mode_label_auto</item>
+        <item>@string/night_mode_label_off</item>
+        <item>@string/night_mode_label_on</item>
+    </string-array>
+    <string-array name="night_mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="night_mode_label_auto">Follow system</string>
+    <string name="night_mode_label_off">Off</string>
+    <string name="night_mode_label_on">On</string>
+    <string name="action_settings">Settings</string>
+
 </resources>

@@ -1,38 +1,13 @@
 package com.mittylabs.elaps.prefs
 
-import com.mittylabs.elaps.ui.main.TimerState
-
 class SharedPrefs(
-    private val preferences: SharedPrefManager
+    private val spm: SharedPrefManager
 ) {
 
-//    fun getTimerLength(): Long {
-//        return preferences.getLongValue(TIMER_LENGTH_ID, 30000L)
-//    }
-//    fun setTimerLength(length: Long) {
-//        preferences.setLongValue(TIMER_LENGTH_ID, length)
-//    }
-//
-//    fun getTimerState(): TimerState {
-//        val ordinal = preferences.getIntValue(TIMER_STATE_ID, TimerState.INITIALIZE.ordinal)
-//        return TimerState.Running
-//    }
-//    fun setTimerState(state: TimerState) {
-//        preferences.setIntValue(TIMER_STATE_ID, state.ordinal)
-//    }
-//
-//    fun getTimeRemaining(): Long {
-//        return preferences.getLongValue(MILLISECONDS_REMAINING_ID, 0)
-//    }
-//    fun setTimeRemaining(milliseconds: Long) {
-//        preferences.setLongValue(MILLISECONDS_REMAINING_ID, milliseconds)
-//    }
+    fun setDarkModeSetting(darkMode: Int) { spm.setIntValue(SHARED_PREF_DARK_MODE, darkMode) }
+    fun getDarkModeSetting() = spm.getIntValue(SHARED_PREF_DARK_MODE)
 
     companion object {
-        private const val TIMER_LENGTH_ID = "timer_length"
-        private const val PREVIOUS_TIMER_LENGTH_SECONDS_ID = "previous_timer_length_seconds"
-        private const val TIMER_STATE_ID = "timer_state"
-        private const val MILLISECONDS_REMAINING_ID = "milliseconds_remaining"
-        private const val ALARM_SET_TIME_ID = "backgrounded_time"
+        const val SHARED_PREF_DARK_MODE = "SHARED_PREF_DARK_THEME"
     }
 }

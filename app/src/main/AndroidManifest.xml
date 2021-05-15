@@ -20,6 +20,7 @@
         android:theme="@style/MyTheme.DayNight">
 
         <activity android:name=".ui.main.TimerSetupActivity"/>
+        <activity android:name=".settings.SettingsActivity"/>
 
         <activity android:name=".ui.main.TimerActivity" >
             <intent-filter>
