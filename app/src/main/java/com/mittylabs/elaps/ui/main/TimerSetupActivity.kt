@@ -7,10 +7,7 @@ import android.os.Bundle
 import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
-import com.mittylabs.elaps.prefs.SharedPrefs
-import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_START
-import org.koin.android.ext.android.inject
 
 class TimerSetupActivity : Activity() {
     private lateinit var binding: ActivityTimerSettingsBinding

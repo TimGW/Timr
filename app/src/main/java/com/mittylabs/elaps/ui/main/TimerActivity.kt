@@ -73,7 +73,7 @@ class TimerActivity : Activity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelable(BUNDLE_EXTRA_TIMER, timerState)
+        if (::timerState.isInitialized) outState.putParcelable(BUNDLE_EXTRA_TIMER, timerState)
     }
 
     private fun initButtonListeners() {
@@ -93,7 +93,8 @@ class TimerActivity : Activity() {
 
     private fun updateTimerState(timerState: TimerState?) {
         timerState?.let { this.timerState = it }
-        binding.timerTextView.clearAnimation()
+
+        if (timerState !is Paused) binding.timerTextView.clearAnimation()
 
         when (timerState) {
             is Running -> updateProgress(timerState.initialTime, timerState.remainingTime)
@@ -114,9 +115,9 @@ class TimerActivity : Activity() {
 
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-        binding.timerProgressBar.max = (length - 1000L).toInt()
+        binding.timerProgressBar.max = (length - MILLISECOND).toInt()
 
-        val progress = ((length - 1000L) - (remaining - 1000L)).toInt()
+        val progress = ((length - MILLISECOND) - (remaining - MILLISECOND)).toInt()
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             binding.timerProgressBar.setProgress(progress, true)
         } else {
@@ -153,5 +154,6 @@ class TimerActivity : Activity() {
         const val INTENT_EXTRA_TIMER = "INTENT_EXTRA_TIMER"
         const val BUNDLE_EXTRA_TIMER = "BUNDLE_EXTRA_TIMER"
         const val INTENT_EXTRA_TIMER_START = "INTENT_EXTRA_TIMER_START"
+        const val MILLISECOND = 1000L
     }
 }

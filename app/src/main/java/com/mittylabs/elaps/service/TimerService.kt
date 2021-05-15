@@ -16,8 +16,9 @@ import com.mittylabs.elaps.ui.main.TimerState
 class TimerService : Service() {
 
     companion object {
-        private const val TICK_INTERVAL = 1000L
-        private const val FIVE_MINUTES_IN_MILLIS = 1000 * 60 * 5
+        private const val TICK_INTERVAL = 50L
+        private const val ONE_SECOND = 1000L
+        private const val FIVE_MINUTES = 1000 * 60 * 5
 
         const val START_ACTION = "PLAY"
         const val PAUSE_ACTION = "PAUSE"
@@ -36,22 +37,22 @@ class TimerService : Service() {
     private var initialTimerLength: Long = 0L
     private var currentTimerLength: Long = 0L
     private var currentTimeRemaining: Long = 0L
-    private var timeElapsed = 0L
+    private var elapsedFinishedTime = 0L
     private val handler: Handler = Handler(Looper.getMainLooper())
     private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {
             try {
-                timeElapsed -= TICK_INTERVAL
+                elapsedFinishedTime -= ONE_SECOND
                 broadcast(
                     TimerState.Finished(
                         currentTimerLength,
                         currentTimeRemaining,
-                        timeElapsed
+                        elapsedFinishedTime
                     )
                 )
-                updateFinishedState(timeElapsed)
+                updateFinishedState(elapsedFinishedTime)
             } finally {
-                handler.postDelayed(this, TICK_INTERVAL)
+                handler.postDelayed(this, ONE_SECOND)
             }
         }
     }
@@ -112,8 +113,8 @@ class TimerService : Service() {
 
     private fun extendTimer() {
         if (::timer.isInitialized) {
-            currentTimerLength += FIVE_MINUTES_IN_MILLIS
-            currentTimeRemaining += FIVE_MINUTES_IN_MILLIS
+            currentTimerLength += FIVE_MINUTES
+            currentTimeRemaining += FIVE_MINUTES
 
             timer.cancel()
             timer = createCountDownTimer(currentTimeRemaining)
@@ -131,15 +132,21 @@ class TimerService : Service() {
     private fun createCountDownTimer(
         millisInFuture: Long
     ) = object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
+        var notificationUpdateThreshold = 0L
 
-        override fun onFinish() {
-            finishedRunnable.run()
-        }
+        override fun onFinish() { finishedRunnable.run() }
 
         override fun onTick(millisUntilFinished: Long) {
+            notificationUpdateThreshold += currentTimeRemaining - millisUntilFinished
             currentTimeRemaining = millisUntilFinished
+
             broadcast(TimerState.Running(currentTimerLength, millisUntilFinished))
-            updateTimeLeft(currentTimeRemaining)
+
+            // required for smooth progress bar but prevent spamming of notifications
+            if (notificationUpdateThreshold >= ONE_SECOND) {
+                updateTimeLeft(currentTimeRemaining)
+                notificationUpdateThreshold = 0L
+            }
         }
-    }
+    }.also { updateTimeLeft(currentTimeRemaining) }
 }
