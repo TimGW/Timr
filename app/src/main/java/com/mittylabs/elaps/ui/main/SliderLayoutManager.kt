@@ -1,21 +1,19 @@
 package com.mittylabs.elaps.ui.main
 
+import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
-import com.mittylabs.elaps.R
-import kotlin.math.abs
 
 class SliderLayoutManager(
-    context: Context?,
-    private val screenWidth: Int = 0
-) : LinearLayoutManager(context, HORIZONTAL, false) {
+    private val activity: Activity,
+    private val initialIndex: Int = 0
+) : LinearLayoutManager(activity, HORIZONTAL, false) {
     var onScroll: ((Int) -> Unit)? = null
 
     private var currentPosition = 0
@@ -35,9 +33,18 @@ class SliderLayoutManager(
                 if (view.viewTreeObserver.isAlive) {
                     view.viewTreeObserver.removeOnPreDrawListener(this)
                 }
+
+                val screenWidth = activity.windowManager?.currentWindowMetrics?.bounds?.width()
+                    ?: return true
+
+                // set padding offset to align start/end to the middle
                 val offset = (screenWidth - view.width) / 2F
                 val padding = ((screenWidth / 2f) - offset).toInt()
                 view.setPadding(padding, 0, padding, 0)
+
+                // set initial position
+                val itemOffset = getChildAt(0)?.width?.div(2) ?: 0
+                scrollToPositionWithOffset(initialIndex, -itemOffset)
 
                 return true
             }
@@ -61,7 +68,7 @@ class SliderLayoutManager(
 
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: return
-            val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
+            val childCenterX = getDecoratedLeft(child) + (getDecoratedRight(child) - getDecoratedLeft(child)) / 2
             val diff =  Math.abs(recyclerViewCenterX - childCenterX)
 
             if (diff < minDistance) {

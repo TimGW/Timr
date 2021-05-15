@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_weight="1"
+        android:text="@string/initial_timer_setting"
         android:textSize="72sp"
         app:layout_constraintBottom_toTopOf="@id/recycler_view"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +32,7 @@
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/minute_buttons"
+        app:layout_constraintBottom_toTopOf="@+id/minutes_45"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/minutes" />
@@ -57,89 +58,123 @@
         app:layout_constraintStart_toStartOf="@id/recycler_view"
         app:layout_constraintTop_toBottomOf="@id/recycler_view" />
 
-    <RadioGroup
+    <androidx.constraintlayout.widget.Group
         android:id="@+id/minute_buttons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="20dp"
+        app:constraint_referenced_ids="minutes_20,minutes_30,minutes_45,minutes_60,minutes_90" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/minutes_20"
+        android:layout_width="@dimen/timer_preset_size"
+        android:layout_height="@dimen/timer_preset_size"
+        android:layout_marginLeft="@dimen/timer_preset_margin"
+        android:layout_marginRight="@dimen/timer_preset_margin"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="@string/minutes_20"
+        android:textAlignment="center"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/text_size_timer_preset"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/minutes_30"
+        app:layout_constraintEnd_toStartOf="@+id/minutes_30"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/minutes_30"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="@dimen/timer_preset_margin"
+        android:layout_marginRight="@dimen/timer_preset_margin"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="@string/minutes_30"
+        android:textAlignment="center"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/text_size_timer_preset"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/minutes_45"
+        app:layout_constraintEnd_toStartOf="@+id/minutes_45"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/minutes_20" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/minutes_45"
+        android:layout_width="@dimen/timer_preset_size"
+        android:layout_height="@dimen/timer_preset_size"
+        android:layout_marginLeft="@dimen/timer_preset_margin"
+        android:layout_marginRight="@dimen/timer_preset_margin"
+        android:layout_marginBottom="32dp"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="@string/minutes_45"
+        android:textAlignment="center"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/text_size_timer_preset"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
         app:layout_constraintBottom_toTopOf="@id/timer_start_button"
+        app:layout_constraintEnd_toStartOf="@+id/minutes_60"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/minutes_30" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/minutes_60"
+        android:layout_width="@dimen/timer_preset_size"
+        android:layout_height="@dimen/timer_preset_size"
+        android:layout_marginLeft="@dimen/timer_preset_margin"
+        android:layout_marginRight="@dimen/timer_preset_margin"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="@string/minutes_60"
+        android:textAlignment="center"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/text_size_timer_preset"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/minutes_45"
+        app:layout_constraintEnd_toStartOf="@+id/minutes_90"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/minutes_45" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/minutes_90"
+        android:layout_width="@dimen/timer_preset_size"
+        android:layout_height="@dimen/timer_preset_size"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        android:padding="0dp"
+        android:text="@string/minutes_90"
+        android:textAlignment="center"
+        android:textColor="@color/color_on_primary"
+        android:textSize="@dimen/text_size_timer_preset"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="@+id/minutes_60"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <RadioButton
-            android:id="@+id/minutes_20"
-            android:layout_width="@dimen/timer_preset_size"
-            android:layout_height="@dimen/timer_preset_size"
-            android:layout_marginLeft="@dimen/timer_preset_margin"
-            android:layout_marginRight="@dimen/timer_preset_margin"
-            android:background="@drawable/round_button"
-            android:button="@android:color/transparent"
-            android:text="@string/minutes_20"
-            android:textAlignment="center"
-            android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
-            android:textStyle="bold" />
-
-        <RadioButton
-            android:id="@+id/minutes_30"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="@dimen/timer_preset_margin"
-            android:layout_marginRight="@dimen/timer_preset_margin"
-            android:background="@drawable/round_button"
-            android:button="@android:color/transparent"
-            android:text="@string/minutes_30"
-            android:textAlignment="center"
-            android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
-            android:textStyle="bold" />
-
-        <RadioButton
-            android:id="@+id/minutes_45"
-            android:layout_width="@dimen/timer_preset_size"
-            android:layout_height="@dimen/timer_preset_size"
-            android:layout_marginLeft="@dimen/timer_preset_margin"
-            android:layout_marginRight="@dimen/timer_preset_margin"
-            android:background="@drawable/round_button"
-            android:button="@android:color/transparent"
-            android:text="@string/minutes_45"
-            android:textAlignment="center"
-            android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
-            android:textStyle="bold" />
-
-        <RadioButton
-            android:id="@+id/minutes_60"
-            android:layout_width="@dimen/timer_preset_size"
-            android:layout_height="@dimen/timer_preset_size"
-            android:layout_marginLeft="@dimen/timer_preset_margin"
-            android:layout_marginRight="@dimen/timer_preset_margin"
-            android:background="@drawable/round_button"
-            android:button="@android:color/transparent"
-            android:text="@string/minutes_60"
-            android:textAlignment="center"
-            android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
-            android:textStyle="bold" />
-
-        <RadioButton
-            android:id="@+id/minutes_90"
-            android:layout_width="@dimen/timer_preset_size"
-            android:layout_height="@dimen/timer_preset_size"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
-            android:background="@drawable/round_button"
-            android:button="@android:color/transparent"
-            android:text="@string/minutes_90"
-            android:textAlignment="center"
-            android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
-            android:textStyle="bold" />
-
-    </RadioGroup>
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/minutes_60" />
 
     <ImageView
         android:id="@+id/timer_start_button"
@@ -149,7 +184,7 @@
         android:layout_marginBottom="32dp"
         android:src="@drawable/ic_play_circle_filled"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

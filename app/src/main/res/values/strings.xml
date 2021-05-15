@@ -18,4 +18,5 @@
     <string name="channel_timer_running_desc">Make sound</string>
     <string name="channel_timer_finished_desc">Make sound and pop on screen</string>
     <string name="timer_extend_button_text">+ 5:00</string>
+    <string name="initial_timer_setting">30</string>
 </resources>

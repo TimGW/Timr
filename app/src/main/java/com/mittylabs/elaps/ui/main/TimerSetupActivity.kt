@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
 import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_START
+import com.mittylabs.elaps.utils.setOnClickListeners
 
 class TimerSetupActivity : Activity() {
     private lateinit var binding: ActivityTimerSettingsBinding
@@ -19,16 +20,13 @@ class TimerSetupActivity : Activity() {
         setContentView(binding.root)
 
         setupRecyclerView()
-        setupRadioButtons()
+        setupMinuteButtons()
 
         binding.timerStartButton.setOnClickListener { startRunningTimerActivity() }
     }
 
     private fun setupRecyclerView() {
-        sliderLayoutManager = SliderLayoutManager(
-            this,
-            windowManager.currentWindowMetrics.bounds.width()
-        ).apply {
+        sliderLayoutManager = SliderLayoutManager(this, MINUTES_30 - 1).apply {
             onScroll = { binding.timerSelectedMinutes.text = (it + 1).toString() }
         }
 
@@ -40,9 +38,9 @@ class TimerSetupActivity : Activity() {
         LinearSnapHelper().attachToRecyclerView(binding.recyclerView)
     }
 
-    private fun setupRadioButtons() {
-        binding.minuteButtons.setOnCheckedChangeListener { _, checkedId ->
-            val minutes = when (checkedId) {
+    private fun setupMinuteButtons() {
+        binding.minuteButtons.setOnClickListeners {
+            val minutes = when (it.id) {
                 R.id.minutes_20 -> MINUTES_20
                 R.id.minutes_30 -> MINUTES_30
                 R.id.minutes_45 -> MINUTES_45
