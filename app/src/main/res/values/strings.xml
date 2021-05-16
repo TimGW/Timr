@@ -42,5 +42,7 @@
     <string name="night_mode_label_off">Off</string>
     <string name="night_mode_label_on">On</string>
     <string name="action_settings">Settings</string>
+    <string name="minutes_text">minutes</string>
+    <string name="minute_text">minute</string>
 
 </resources>
