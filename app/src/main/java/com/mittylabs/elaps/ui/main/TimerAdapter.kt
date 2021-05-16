@@ -26,13 +26,12 @@ class TimerAdapter : RecyclerView.Adapter<TimerAdapter.ViewHolder>() {
             R.layout.list_item_timer_slider
         }
 
-        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(
+            LayoutInflater.from(parent.context).inflate(layout, parent, false)
+        )
     }
 
-    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.tag = position
-    }
+    override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) { }
 
     override fun getItemViewType(position: Int): Int {
         if (position == 0) return 1

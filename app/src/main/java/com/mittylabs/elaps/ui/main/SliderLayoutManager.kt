@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 
@@ -16,6 +17,7 @@ class SliderLayoutManager(
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
     var onScroll: ((Int) -> Unit)? = null
 
+    private lateinit var recyclerView: RecyclerView
     private var currentPosition = 0
     private val handler = Handler(Looper.getMainLooper())
     private val runnable = object : Runnable {
@@ -27,6 +29,8 @@ class SliderLayoutManager(
 
     override fun onAttachedToWindow(view: RecyclerView) {
         super.onAttachedToWindow(view)
+        recyclerView = view
+
         view.clipToPadding = false
         view.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
@@ -42,6 +46,7 @@ class SliderLayoutManager(
             }
         })
 
+        LinearSnapHelper().attachToRecyclerView(view)
     }
 
     override fun onScrollStateChanged(state: Int) {
@@ -60,19 +65,16 @@ class SliderLayoutManager(
 
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: return
-            val childCenterX = getDecoratedLeft(child) + (getDecoratedRight(child) - getDecoratedLeft(
-                child
-            )) / 2
+            val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
             val diff =  Math.abs(recyclerViewCenterX - childCenterX)
-
             if (diff < minDistance) {
                 minDistance = diff
-                position = i
+                position = recyclerView.getChildLayoutPosition(child)
             }
         }
 
         if (position != -1 && currentPosition != position) {
-            currentPosition = getChildAt(position)?.tag as? Int ?: return
+            currentPosition = position
             onScroll?.invoke(currentPosition)
         }
     }

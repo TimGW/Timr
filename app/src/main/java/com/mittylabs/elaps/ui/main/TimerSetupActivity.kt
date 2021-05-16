@@ -57,8 +57,6 @@ class TimerSetupActivity : AppCompatActivity() {
             onItemClick = { sliderLayoutManager.smoothScroll(binding.recyclerView, it) }
         }
         binding.recyclerView.layoutManager = sliderLayoutManager
-
-        LinearSnapHelper().attachToRecyclerView(binding.recyclerView)
     }
 
     private fun setupMinuteButtons() {
