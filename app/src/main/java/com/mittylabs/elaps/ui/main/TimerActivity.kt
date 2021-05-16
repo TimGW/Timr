@@ -1,12 +1,12 @@
 package com.mittylabs.elaps.ui.main
 
-import android.app.Activity
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.CompoundButton
+import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.service.Timer.extend
 import com.mittylabs.elaps.service.Timer.pause
@@ -18,7 +18,7 @@ import com.mittylabs.elaps.ui.main.TimerState.*
 import com.mittylabs.elaps.utils.blink
 import com.mittylabs.elaps.utils.toHumanFormat
 
-class TimerActivity : Activity() {
+class TimerActivity : AppCompatActivity() {
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: ActivityTimerBinding
     private lateinit var timerState: TimerState

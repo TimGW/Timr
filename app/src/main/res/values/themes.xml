@@ -30,6 +30,8 @@
         <item name="colorOnSurface">@color/color_on_surface</item>
         <item name="colorOnError">@color/color_on_error</item>
 
+        <item name="android:textColor">@color/color_on_surface</item>
+
         <!--Material type attributes-->
         <item name="textAppearanceHeadline1">@style/TextAppearance.MyTheme.Headline1</item>
         <item name="textAppearanceHeadline2">@style/TextAppearance.MyTheme.Headline2</item>
@@ -51,12 +53,12 @@
     </style>
 
     <style name="Base.MaterialThemeBuilder" parent="Theme.MaterialComponents.DayNight">
-        <item name="android:windowLightStatusBar">true</item>
-        <item name="android:statusBarColor">@color/color_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/color_primary_variant</item>
 
         <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="android:windowLightNavigationBar" tools:ignore="NewApi">true</item>
-        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">?colorControlHighlight</item>
+        <item name="android:navigationBarDividerColor" tools:ignore="NewApi">@color/color_background</item>
 
         <!--Remap legacy AppCompat attributes to MaterialComponent attributes-->
         <item name="colorPrimaryDark">?colorPrimaryVariant</item>

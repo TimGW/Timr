@@ -18,7 +18,6 @@
     <dimen name="tag_height">24dp</dimen>
     <dimen name="text_size_timer_preset">18sp</dimen>
     <dimen name="timer_preset_size">40dp</dimen>
-    <dimen name="timer_preset_margin">12dp</dimen>
 
     <dimen name="padding_list_item_timer_slider">8dp</dimen>
 </resources>
