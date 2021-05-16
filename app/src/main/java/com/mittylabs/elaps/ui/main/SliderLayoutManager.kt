@@ -10,13 +10,13 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.SmoothScroller
 
+typealias OnScrollListener = (Int) -> Unit
 
-class SliderLayoutManager(
+class SliderLayoutManager private constructor(
     context: Context,
-    private val initialIndex: Int = 0
+    private val initialIndex: Int = 0,
+    private val onScrollListener: OnScrollListener? = null
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
-    var onScroll: ((Int) -> Unit)? = null
-
     private lateinit var recyclerView: RecyclerView
     private var currentPosition = 0
     private val handler = Handler(Looper.getMainLooper())
@@ -66,7 +66,7 @@ class SliderLayoutManager(
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: return
             val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
-            val diff =  Math.abs(recyclerViewCenterX - childCenterX)
+            val diff = Math.abs(recyclerViewCenterX - childCenterX)
             if (diff < minDistance) {
                 minDistance = diff
                 position = recyclerView.getChildLayoutPosition(child)
@@ -75,7 +75,7 @@ class SliderLayoutManager(
 
         if (position != -1 && currentPosition != position) {
             currentPosition = position
-            onScroll?.invoke(currentPosition)
+            onScrollListener?.invoke(currentPosition)
         }
     }
 
@@ -91,7 +91,7 @@ class SliderLayoutManager(
 
     private class CenterSmoothScroller(
         context: Context?
-    ): LinearSmoothScroller(context) {
+    ) : LinearSmoothScroller(context) {
         override fun calculateDtToFit(
             viewStart: Int,
             viewEnd: Int,
@@ -104,6 +104,22 @@ class SliderLayoutManager(
     fun smoothScroll(recyclerView: RecyclerView?, position: Int) {
         if (currentPosition == position) return
         smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
+    }
+
+    data class Builder(
+        val context: Context,
+    ) {
+        var initialIndex: Int = 0
+        var onScrollListener: OnScrollListener? = null
+
+        fun setInitialIndex(initialIndex: Int) = apply {
+            this.initialIndex = initialIndex
+        }
+        fun setOnScrollListener(onScrollListener: OnScrollListener) = apply {
+            this.onScrollListener = onScrollListener
+        }
+
+        fun build() = SliderLayoutManager(context, initialIndex, onScrollListener)
     }
 
     companion object {

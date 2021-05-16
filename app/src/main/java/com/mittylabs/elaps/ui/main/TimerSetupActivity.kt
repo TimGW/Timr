@@ -49,9 +49,10 @@ class TimerSetupActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        sliderLayoutManager = SliderLayoutManager(this, MINUTES_30 - 1).apply {
-            onScroll = { binding.timerSelectedMinutes.text = (it + 1).toString() }
-        }
+        sliderLayoutManager = SliderLayoutManager.Builder(this)
+            .setInitialIndex(MINUTES_30 - 1)
+            .setOnScrollListener { binding.timerSelectedMinutes.text = (it + 1).toString() }
+            .build()
 
         binding.recyclerView.adapter = TimerAdapter().apply {
             onItemClick = { sliderLayoutManager.smoothScroll(binding.recyclerView, it) }
