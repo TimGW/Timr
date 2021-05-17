@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
 import com.mittylabs.elaps.settings.SettingsActivity
 import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_START
 import com.mittylabs.elaps.utils.setOnClickListeners
+import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
 
 class TimerSetupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerSettingsBinding

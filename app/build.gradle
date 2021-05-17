@@ -60,4 +60,5 @@ dependencies {
     testImplementation "org.koin:koin-test:$koin_version"
 
     implementation 'androidx.preference:preference-ktx:1.1.1'
+    implementation 'com.github.tim91G:SliderPickerLibrary:1.0.0'
 }
