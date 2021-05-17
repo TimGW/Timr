@@ -157,8 +157,10 @@
 
     <ImageView
         android:id="@+id/timer_start_button"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:clickable="true"
+        android:focusable="true"
         android:layout_gravity="center_horizontal"
         android:layout_marginEnd="32dp"
         android:src="@drawable/ic_play_circle_filled"

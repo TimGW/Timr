@@ -94,28 +94,52 @@ class TimerActivity : AppCompatActivity() {
     private fun updateTimerState(timerState: TimerState?) {
         timerState?.let { this.timerState = it }
 
-        if (timerState !is Paused) binding.timerTextView.clearAnimation()
-
         when (timerState) {
-            is Running -> updateProgress(timerState.initialTime, timerState.remainingTime)
-            is Paused -> {
-                updateProgress(timerState.initialTime, timerState.remainingTime)
-                binding.timerTextView.blink()
+            is Started -> {
+                binding.timerTextView.clearAnimation()
+                updateToggleState(false)
             }
-            is Stopped -> updateProgress(timerState.initialTime, timerState.initialTime)
-            is Finished -> binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
-            is Terminated, null -> close()
+            is Running -> {
+                updateProgress(timerState.initialTime, timerState.remainingTime)
+            }
+            is Paused -> {
+                binding.timerTextView.blink()
+                updateToggleState(true)
+                updateProgress(timerState.initialTime, timerState.remainingTime)
+            }
+            is Stopped -> {
+                binding.timerTextView.clearAnimation()
+                updateToggleState(true)
+                updateProgress(timerState.initialTime, timerState.initialTime)
+            }
+            is Finished -> {
+                binding.timerTextView.clearAnimation()
+                updateToggleState(true)
+                binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
+            }
+            is Terminated, null -> {
+                close()
+            }
         }
+    }
 
-        // temporary disable listener to update the toggle button state
+    /**
+     * temporary disable listener to update the toggle button state
+     * return immediately is state is already the same
+     *
+     * true = playicon is visible
+     * false = pauseicon is visible
+     */
+    private fun updateToggleState(isPlayIconVisible: Boolean) {
+        if (binding.timerStartPauseToggleButton.isChecked == isPlayIconVisible) return
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(null)
-        binding.timerStartPauseToggleButton.isChecked = timerState !is Running
+        binding.timerStartPauseToggleButton.isChecked = isPlayIconVisible
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
     }
 
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-        binding.timerProgressBar.max = (length - MILLISECOND).toInt()
+        binding.timerProgressBar.max = (length - MILLISECOND).toInt() // todo extract
 
         val progress = ((length - MILLISECOND) - (remaining - MILLISECOND)).toInt()
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {

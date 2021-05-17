@@ -89,7 +89,7 @@ class TimerService : Service() {
         }
         startForeground(NOTIFICATION_ID, createNotification(timerLength))
         timer = createCountDownTimer(currentTimeRemaining).start()
-        broadcast(TimerState.Running(timerLength, currentTimeRemaining))
+        broadcast(TimerState.Started(timerLength, currentTimeRemaining))
     }
 
     private fun pauseTimer() {

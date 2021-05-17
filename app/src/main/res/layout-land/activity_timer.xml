@@ -41,7 +41,10 @@
         android:id="@+id/timer_reset_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_repeat"
         app:layout_constraintBottom_toTopOf="@+id/timer_start_pause_toggle_button"
         app:layout_constraintEnd_toEndOf="parent"
@@ -64,11 +67,14 @@
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/timer_reset_button" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/timer_terminate_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="4dp"
+        android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_clear"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
