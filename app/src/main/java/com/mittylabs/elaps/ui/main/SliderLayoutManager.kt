@@ -15,7 +15,8 @@ typealias OnScrollListener = (Int) -> Unit
 class SliderLayoutManager private constructor(
     context: Context,
     private val initialIndex: Int = 0,
-    private val onScrollListener: OnScrollListener? = null
+    private val onScrollListener: OnScrollListener? = null,
+    private val scaling: Builder.Scaling? = null
 ) : LinearLayoutManager(context, HORIZONTAL, false) {
     private lateinit var recyclerView: RecyclerView
     private var currentPosition = 0
@@ -58,6 +59,61 @@ class SliderLayoutManager private constructor(
         }
     }
 
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State) {
+        super.onLayoutChildren(recycler, state)
+        if (scaling != null) scaleDownView()
+    }
+
+    override fun scrollHorizontallyBy(
+        dx: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        return if (orientation == HORIZONTAL) {
+            val scrolled = super.scrollHorizontallyBy(dx, recycler, state)
+            if (scaling != null) scaleDownView()
+            scrolled
+        } else {
+            0
+        }
+    }
+
+    override fun smoothScrollToPosition(
+        recyclerView: RecyclerView?,
+        state: RecyclerView.State?,
+        position: Int
+    ) {
+        val smoothScroller: SmoothScroller = CenterSmoothScroller(recyclerView?.context)
+        smoothScroller.targetPosition = position
+        startSmoothScroll(smoothScroller)
+    }
+
+    private fun scaleDownView() {
+        val recyclerViewCenterX = width / 2.0f
+        for (i in 0 until childCount) {
+
+            // Calculating the distance of the child from the center
+            val child = getChildAt(i) ?: return
+            val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
+            val diff = Math.abs(recyclerViewCenterX - childCenterX)
+
+            // The scaling formula
+            val scale = when(scaling) {
+                Builder.Scaling.Linear -> {
+                    1 - diff / width
+                }
+                is Builder.Scaling.Logarithmic -> {
+                    1 - Math.sqrt((diff / width).toDouble()).toFloat() * scaling.scalingMultiplier
+                }
+                else -> 1F
+            }
+
+            // Set scale to view
+            child.scaleX = scale
+            child.scaleY = scale
+        }
+    }
+
     private fun calculateCenterIndex() {
         val recyclerViewCenterX = width / 2.0f
         var minDistance = Float.MAX_VALUE
@@ -79,14 +135,9 @@ class SliderLayoutManager private constructor(
         }
     }
 
-    override fun smoothScrollToPosition(
-        recyclerView: RecyclerView?,
-        state: RecyclerView.State?,
-        position: Int
-    ) {
-        val smoothScroller: SmoothScroller = CenterSmoothScroller(recyclerView?.context)
-        smoothScroller.targetPosition = position
-        startSmoothScroll(smoothScroller)
+    fun smoothScroll(recyclerView: RecyclerView?, position: Int) {
+        if (currentPosition == position) return
+        smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
     }
 
     private class CenterSmoothScroller(
@@ -101,25 +152,31 @@ class SliderLayoutManager private constructor(
         ) = boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
     }
 
-    fun smoothScroll(recyclerView: RecyclerView?, position: Int) {
-        if (currentPosition == position) return
-        smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
-    }
-
     data class Builder(
         val context: Context,
     ) {
         var initialIndex: Int = 0
         var onScrollListener: OnScrollListener? = null
+        var scaling: Scaling? = null
 
         fun setInitialIndex(initialIndex: Int) = apply {
             this.initialIndex = initialIndex
         }
+
         fun setOnScrollListener(onScrollListener: OnScrollListener) = apply {
             this.onScrollListener = onScrollListener
         }
 
-        fun build() = SliderLayoutManager(context, initialIndex, onScrollListener)
+        fun setScaling(scaling: Scaling) = apply {
+            this.scaling = scaling
+        }
+
+        fun build() = SliderLayoutManager(context, initialIndex, onScrollListener, scaling)
+
+        sealed class Scaling {
+            object Linear : Scaling()
+            data class Logarithmic(val scalingMultiplier: Float = 1.0F) : Scaling()
+        }
     }
 
     companion object {
