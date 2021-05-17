@@ -3,6 +3,7 @@ package com.mittylabs.elaps.ui.main
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSmoothScroller
@@ -14,10 +15,11 @@ typealias OnScrollListener = (Int) -> Unit
 
 class SliderLayoutManager private constructor(
     context: Context,
+    @RecyclerView.Orientation sliderOrientation: Int = RecyclerView.HORIZONTAL,
     private val initialIndex: Int = 0,
     private val onScrollListener: OnScrollListener? = null,
-    private val scaling: Builder.Scaling? = null
-) : LinearLayoutManager(context, HORIZONTAL, false) {
+    private val scaling: Scaling? = null,
+) : LinearLayoutManager(context, sliderOrientation, false) {
     private lateinit var recyclerView: RecyclerView
     private var currentPosition = 0
     private val handler = Handler(Looper.getMainLooper())
@@ -38,12 +40,10 @@ class SliderLayoutManager private constructor(
                 view.viewTreeObserver.removeOnGlobalLayoutListener(this)
 
                 // set padding offset to align start/end to the middle
-                val padding = view.width / 2
-                view.setPadding(padding, 0, padding, 0)
+                setPaddingOffset(view, orientation)
 
                 // set initial position
-                val itemOffset = getChildAt(0)?.width?.div(2) ?: 0
-                scrollToPositionWithOffset(initialIndex, -itemOffset)
+                scrollToPositionWithOffset(initialIndex, getInitialItemOffset(orientation))
             }
         })
 
@@ -61,7 +61,16 @@ class SliderLayoutManager private constructor(
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State) {
         super.onLayoutChildren(recycler, state)
-        if (scaling != null) scaleDownView()
+        if (scaling != null) scaleView()
+    }
+
+    override fun scrollVerticallyBy(
+        dy: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        if (orientation == VERTICAL && scaling != null) scaleView()
+        return super.scrollVerticallyBy(dy, recycler, state)
     }
 
     override fun scrollHorizontallyBy(
@@ -69,13 +78,8 @@ class SliderLayoutManager private constructor(
         recycler: RecyclerView.Recycler?,
         state: RecyclerView.State?
     ): Int {
-        return if (orientation == HORIZONTAL) {
-            val scrolled = super.scrollHorizontallyBy(dx, recycler, state)
-            if (scaling != null) scaleDownView()
-            scrolled
-        } else {
-            0
-        }
+        if (orientation == HORIZONTAL && scaling != null) scaleView()
+        return super.scrollHorizontallyBy(dx, recycler, state)
     }
 
     override fun smoothScrollToPosition(
@@ -88,41 +92,67 @@ class SliderLayoutManager private constructor(
         startSmoothScroll(smoothScroller)
     }
 
-    private fun scaleDownView() {
-        val recyclerViewCenterX = width / 2.0f
+    private fun setPaddingOffset(
+        view: RecyclerView,
+        orientation: Int
+    ) {
+        if (orientation == HORIZONTAL) {
+            val padding = view.width / HALF_INT
+            view.setPadding(padding, 0, padding, 0)
+        } else {
+            val padding = view.height / HALF_INT
+            view.setPadding(0, padding, 0, padding)
+        }
+    }
+
+    private fun getInitialItemOffset(
+        orientation: Int
+    ) = if (orientation == HORIZONTAL) {
+        -(getChildAt(0)?.width?.div(HALF_INT) ?: 0)
+    } else {
+        -(getChildAt(0)?.height?.div(HALF_INT) ?: 0)
+    }
+
+    private fun scaleView() {
+        val recyclerViewCenter = getParentCenter()
         for (i in 0 until childCount) {
-
-            // Calculating the distance of the child from the center
             val child = getChildAt(i) ?: return
-            val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
-            val diff = Math.abs(recyclerViewCenterX - childCenterX)
-
-            // The scaling formula
-            val scale = when(scaling) {
-                Builder.Scaling.Linear -> {
-                    1 - diff / width
-                }
-                is Builder.Scaling.Logarithmic -> {
-                    1 - Math.sqrt((diff / width).toDouble()).toFloat() * scaling.scalingMultiplier
-                }
-                else -> 1F
-            }
-
-            // Set scale to view
+            val diff = Math.abs(recyclerViewCenter - getChildCenter(child))
+            val scale = getScaling(diff)
             child.scaleX = scale
             child.scaleY = scale
         }
     }
 
+    private fun getScaling(diff: Float): Float {
+        val widthOrHeight = if (orientation == HORIZONTAL) width else height
+        return when (scaling) {
+            Scaling.Linear -> 1 - diff / widthOrHeight
+            is Scaling.Logarithmic -> {
+                1 - Math.sqrt((diff / widthOrHeight).toDouble()).toFloat() * scaling.multiplier
+            }
+            else -> 1F
+        }
+    }
+
+    private fun getParentCenter() = (if (orientation == HORIZONTAL) width else height) / HALF
+
+    private fun getChildCenter(child: View) = if (orientation == HORIZONTAL) {
+        (getDecoratedLeft(child) + getDecoratedRight(child)) / HALF
+    } else {
+        (getDecoratedTop(child) + getDecoratedBottom(child)) / HALF
+    }
+
     private fun calculateCenterIndex() {
-        val recyclerViewCenterX = width / 2.0f
+        val recyclerViewCenter = getParentCenter()
         var minDistance = Float.MAX_VALUE
         var position = -1
 
         for (i in 0 until childCount) {
             val child = getChildAt(i) ?: return
-            val childCenterX = (getDecoratedLeft(child) + getDecoratedRight(child)) / 2.0f
-            val diff = Math.abs(recyclerViewCenterX - childCenterX)
+            val childCenter = getChildCenter(child)
+
+            val diff = Math.abs(recyclerViewCenter - childCenter)
             if (diff < minDistance) {
                 minDistance = diff
                 position = recyclerView.getChildLayoutPosition(child)
@@ -140,6 +170,11 @@ class SliderLayoutManager private constructor(
         smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
     }
 
+    sealed class Scaling {
+        object Linear : Scaling()
+        data class Logarithmic(val multiplier: Float = 1.0F) : Scaling()
+    }
+
     private class CenterSmoothScroller(
         context: Context?
     ) : LinearSmoothScroller(context) {
@@ -149,15 +184,16 @@ class SliderLayoutManager private constructor(
             boxStart: Int,
             boxEnd: Int,
             snapPreference: Int
-        ) = boxStart + (boxEnd - boxStart) / 2 - (viewStart + (viewEnd - viewStart) / 2)
+        ) = boxStart + (boxEnd - boxStart) / HALF_INT - (viewStart + (viewEnd - viewStart) / HALF_INT)
     }
 
     data class Builder(
         val context: Context,
+        @RecyclerView.Orientation val orientation: Int
     ) {
-        var initialIndex: Int = 0
-        var onScrollListener: OnScrollListener? = null
-        var scaling: Scaling? = null
+        private var initialIndex: Int = 0
+        private var onScrollListener: OnScrollListener? = null
+        private var scaling: Scaling? = null
 
         fun setInitialIndex(initialIndex: Int) = apply {
             this.initialIndex = initialIndex
@@ -171,15 +207,12 @@ class SliderLayoutManager private constructor(
             this.scaling = scaling
         }
 
-        fun build() = SliderLayoutManager(context, initialIndex, onScrollListener, scaling)
-
-        sealed class Scaling {
-            object Linear : Scaling()
-            data class Logarithmic(val scalingMultiplier: Float = 1.0F) : Scaling()
-        }
+        fun build() = SliderLayoutManager(context, orientation, initialIndex, onScrollListener, scaling)
     }
 
     companion object {
         private const val DRAGGING_UPDATE_INTERVAL_MS = 50L
+        private const val HALF = 2F
+        private const val HALF_INT = HALF.toInt()
     }
 }

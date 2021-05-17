@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
 import com.mittylabs.elaps.settings.SettingsActivity
@@ -59,12 +61,9 @@ class TimerSetupActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        sliderLayoutManager = SliderLayoutManager.Builder(this)
+        sliderLayoutManager = SliderLayoutManager.Builder(this, HORIZONTAL)
             .setInitialIndex(scrollPosition)
-            .setOnScrollListener {
-                scrollPosition = it
-                updateSelection(scrollPosition)
-            }
+            .setOnScrollListener { scrollPosition = it; updateSelection(scrollPosition) }
             .build()
 
         binding.recyclerView.adapter = TimerAdapter().apply {
