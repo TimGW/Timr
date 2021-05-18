@@ -14,6 +14,7 @@ import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_ST
 import com.mittylabs.elaps.utils.setOnClickListeners
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
 
+
 class TimerSetupActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerSettingsBinding
     private lateinit var sliderLayoutManager: SliderLayoutManager
@@ -29,6 +30,9 @@ class TimerSetupActivity : AppCompatActivity() {
             updateSelection(scrollPosition)
         }
 
+        setSupportActionBar(binding.appbar.toolbar)
+        supportActionBar?.title = getString(R.string.title_timer)
+
         setupRecyclerView()
         setupMinuteButtons()
 
@@ -41,7 +45,6 @@ class TimerSetupActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_settings, menu)
         return true
     }

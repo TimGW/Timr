@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -16,9 +17,10 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        val binding = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setSupportActionBar(binding.appbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         supportFragmentManager

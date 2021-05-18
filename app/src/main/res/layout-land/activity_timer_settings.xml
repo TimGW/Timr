@@ -1,171 +1,198 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.main.TimerSetupActivity">
 
-    <TextView
-        android:id="@+id/timer_selected_minutes"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_weight="1"
-        android:text="@string/initial_timer_setting"
-        android:textSize="72sp"
-        app:layout_constraintEnd_toEndOf="@+id/recycler_view"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <include
+        android:id="@+id/appbar"
+        layout="@layout/layout_toolbar" />
 
-    <TextView
-        android:id="@+id/minutes"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="@string/minutes_text"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@id/timer_selected_minutes"
-        app:layout_constraintStart_toStartOf="@id/timer_selected_minutes"
-        app:layout_constraintTop_toBottomOf="@id/timer_selected_minutes" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toStartOf="@id/minutes_45"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/minutes" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.15" />
 
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/timer_select_gradient"
-        app:layout_constraintBottom_toBottomOf="@id/recycler_view"
-        app:layout_constraintEnd_toEndOf="@id/recycler_view"
-        app:layout_constraintStart_toStartOf="@id/recycler_view"
-        app:layout_constraintTop_toTopOf="@id/recycler_view" />
 
-    <TextView
-        android:id="@+id/indicator"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:rotation="180"
-        android:text="▼"
-        android:textAlignment="center"
-        android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="@+id/recycler_view"
-        app:layout_constraintStart_toStartOf="@+id/recycler_view"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.85" />
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/minute_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="minutes_20,minutes_30,minutes_45,minutes_60,minutes_90" />
+        <TextView
+            android:id="@+id/timer_selected_minutes"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:text="@string/initial_timer_setting"
+            android:textSize="72sp"
+            app:layout_constraintEnd_toEndOf="@+id/recycler_view"
+            app:layout_constraintStart_toStartOf="@+id/recycler_view"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/minutes_20"
-        android:layout_width="@dimen/timer_preset_size"
-        android:layout_height="@dimen/timer_preset_size"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="@string/minutes_20"
-        android:textColor="@color/color_on_primary"
-        android:textSize="@dimen/text_size_timer_preset"
-        android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/minutes_30"
-        app:layout_constraintEnd_toEndOf="@+id/minutes_45"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="spread" />
+        <TextView
+            android:id="@+id/minutes"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:text="@string/minutes_text"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@id/timer_selected_minutes"
+            app:layout_constraintStart_toStartOf="@id/timer_selected_minutes"
+            app:layout_constraintTop_toBottomOf="@id/timer_selected_minutes" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/minutes_30"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="@string/minutes_30"
-        android:textColor="@color/color_on_primary"
-        android:textSize="@dimen/text_size_timer_preset"
-        android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/minutes_45"
-        app:layout_constraintEnd_toEndOf="@+id/minutes_45"
-        app:layout_constraintTop_toBottomOf="@+id/minutes_20" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="@id/guideline3"
+            app:layout_constraintEnd_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/minutes" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/minutes_45"
-        android:layout_width="@dimen/timer_preset_size"
-        android:layout_height="@dimen/timer_preset_size"
-        android:layout_marginEnd="32dp"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="@string/minutes_45"
-        android:textColor="@color/color_on_primary"
-        android:textSize="@dimen/text_size_timer_preset"
-        android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/minutes_60"
-        app:layout_constraintEnd_toStartOf="@id/timer_start_button"
-        app:layout_constraintTop_toBottomOf="@+id/minutes_30" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/timer_select_gradient"
+            app:layout_constraintBottom_toBottomOf="@id/recycler_view"
+            app:layout_constraintEnd_toEndOf="@id/recycler_view"
+            app:layout_constraintStart_toStartOf="@id/recycler_view"
+            app:layout_constraintTop_toTopOf="@id/recycler_view" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/minutes_60"
-        android:layout_width="@dimen/timer_preset_size"
-        android:layout_height="@dimen/timer_preset_size"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="@string/minutes_60"
-        android:textColor="@color/color_on_primary"
-        android:textSize="@dimen/text_size_timer_preset"
-        android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/minutes_90"
-        app:layout_constraintEnd_toEndOf="@+id/minutes_45"
-        app:layout_constraintTop_toBottomOf="@+id/minutes_45" />
+        <TextView
+            android:id="@+id/indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rotation="180"
+            android:text="▼"
+            android:textAlignment="center"
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="@+id/recycler_view"
+            app:layout_constraintStart_toStartOf="@+id/recycler_view"
+            app:layout_constraintTop_toBottomOf="@id/recycler_view" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/minutes_90"
-        android:layout_width="@dimen/timer_preset_size"
-        android:layout_height="@dimen/timer_preset_size"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="@string/minutes_90"
-        android:textColor="@color/color_on_primary"
-        android:textSize="@dimen/text_size_timer_preset"
-        android:textStyle="bold"
-        app:cornerRadius="30dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/minutes_45"
-        app:layout_constraintTop_toBottomOf="@+id/minutes_60" />
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/minute_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="minutes_20,minutes_30,minutes_45,minutes_60,minutes_90" />
 
-    <ImageView
-        android:id="@+id/timer_start_button"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginEnd="32dp"
-        android:src="@drawable/ic_play_circle_filled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minutes_20"
+            android:layout_width="@dimen/timer_preset_size"
+            android:layout_height="@dimen/timer_preset_size"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/minutes_20"
+            android:textColor="@color/color_on_primary"
+            android:textSize="@dimen/text_size_timer_preset"
+            android:textStyle="bold"
+            app:cornerRadius="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/minutes_30"
+            app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minutes_30"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/minutes_30"
+            android:textColor="@color/color_on_primary"
+            android:textSize="@dimen/text_size_timer_preset"
+            android:textStyle="bold"
+            app:cornerRadius="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/minutes_45"
+            app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintTop_toBottomOf="@+id/minutes_20" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minutes_45"
+            android:layout_width="@dimen/timer_preset_size"
+            android:layout_height="@dimen/timer_preset_size"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/minutes_45"
+            android:textColor="@color/color_on_primary"
+            android:textSize="@dimen/text_size_timer_preset"
+            android:textStyle="bold"
+            app:cornerRadius="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/minutes_60"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/minutes_30" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minutes_60"
+            android:layout_width="@dimen/timer_preset_size"
+            android:layout_height="@dimen/timer_preset_size"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/minutes_60"
+            android:textColor="@color/color_on_primary"
+            android:textSize="@dimen/text_size_timer_preset"
+            android:textStyle="bold"
+            app:cornerRadius="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/minutes_90"
+            app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintTop_toBottomOf="@+id/minutes_45" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minutes_90"
+            android:layout_width="@dimen/timer_preset_size"
+            android:layout_height="@dimen/timer_preset_size"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/minutes_90"
+            android:textColor="@color/color_on_primary"
+            android:textSize="@dimen/text_size_timer_preset"
+            android:textStyle="bold"
+            app:cornerRadius="30dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintTop_toBottomOf="@+id/minutes_60" />
+
+        <ImageView
+            android:id="@+id/timer_start_button"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/ic_play_circle_filled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
