@@ -10,8 +10,8 @@ import com.mittylabs.elaps.service.NotificationController.updateFinishedState
 import com.mittylabs.elaps.service.NotificationController.updatePauseState
 import com.mittylabs.elaps.service.NotificationController.updateStopState
 import com.mittylabs.elaps.service.NotificationController.updateTimeLeft
-import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.ui.main.TimerState
+import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.elaps.ui.timer.TimerState
 
 class TimerService : Service() {
 
@@ -21,18 +21,17 @@ class TimerService : Service() {
         private const val FIVE_MINUTES = 1000 * 60 * 5
 
         const val START_ACTION = "PLAY"
+        const val RESUME_ACTION = "RESUME"
         const val PAUSE_ACTION = "PAUSE"
         const val STOP_ACTION = "STOP"
         const val TERMINATE_ACTION = "TERMINATE"
         const val EXTEND_ACTION = "EXTEND"
 
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
-        const val TIMER_PAUSED_STATE_EXTRA = "timerIsPausingState"
 
-        var timerState: TimerState = TimerState.Terminated(0L, 0L)
+        var timerState: TimerState = TimerState.Terminated
     }
 
-    private val binder = LocalBinder()
     private lateinit var timer: CountDownTimer
     private var initialTimerLength: Long = 0L
     private var currentTimerLength: Long = 0L
@@ -43,13 +42,7 @@ class TimerService : Service() {
         override fun run() {
             try {
                 elapsedFinishedTime -= ONE_SECOND
-                broadcast(
-                    TimerState.Finished(
-                        currentTimerLength,
-                        currentTimeRemaining,
-                        elapsedFinishedTime
-                    )
-                )
+                broadcast(TimerState.Finished(true, elapsedFinishedTime))
                 updateFinishedState(elapsedFinishedTime)
             } finally {
                 handler.postDelayed(this, ONE_SECOND)
@@ -57,23 +50,17 @@ class TimerService : Service() {
         }
     }
 
-    inner class LocalBinder : Binder() {
-        fun getService(): TimerService = this@TimerService
-    }
-
-    override fun onBind(intent: Intent): IBinder = binder
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
             handler.removeCallbacks(finishedRunnable)
 
             when (intent.action) {
-                START_ACTION -> playTimer(
-                    intent.getLongExtra(TIMER_LENGTH_EXTRA, 0L),
-                    intent.getBooleanExtra(TIMER_PAUSED_STATE_EXTRA, false)
-                )
+                START_ACTION -> startTimer(intent.getLongExtra(TIMER_LENGTH_EXTRA, 0L))
+                RESUME_ACTION -> resumeTimer()
                 PAUSE_ACTION -> pauseTimer()
-                STOP_ACTION -> stopTimer()
+                STOP_ACTION -> stopTimer(true)
                 TERMINATE_ACTION -> terminateTimer()
                 EXTEND_ACTION -> extendTimer()
             }
@@ -81,44 +68,59 @@ class TimerService : Service() {
         return START_NOT_STICKY
     }
 
-    private fun playTimer(timerLength: Long, isPausingState: Boolean) {
-        if (!isPausingState) {
-            currentTimerLength = timerLength
-            currentTimeRemaining = timerLength
-            initialTimerLength = timerLength
-        }
+    private fun startTimer(timerLength: Long) {
+        currentTimerLength = timerLength
+        currentTimeRemaining = timerLength
+        initialTimerLength = timerLength
+
         startForeground(NOTIFICATION_ID, createNotification(timerLength))
-        timer = createCountDownTimer(currentTimeRemaining).start()
-        broadcast(TimerState.Started(timerLength, currentTimeRemaining))
+
+        resumeTimer()
+    }
+
+    private fun resumeTimer() {
+        if (::timer.isInitialized) timer.cancel()
+        timer = createCountDownTimer(currentTimeRemaining)
+        timer.start()
+        broadcast(TimerState.Started(currentTimerLength, currentTimeRemaining, false))
     }
 
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining))
-        updatePauseState(currentTimerLength, currentTimeRemaining)
+        broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining, true))
+        updatePauseState(currentTimeRemaining)
     }
 
-    private fun stopTimer() {
+    private fun stopTimer(resetTime: Boolean) {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Stopped(initialTimerLength, currentTimeRemaining))
-        updateStopState(initialTimerLength)
+
+        if (resetTime) {
+            currentTimerLength = initialTimerLength
+            currentTimeRemaining = initialTimerLength
+        }
+
+        broadcast(TimerState.Stopped(currentTimerLength, true))
+        updateStopState(currentTimerLength)
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Terminated(initialTimerLength, currentTimeRemaining))
+        broadcast(TimerState.Terminated)
         removeNotifications()
         stopSelf()
     }
 
     private fun extendTimer() {
-        if (::timer.isInitialized) {
-            currentTimerLength += FIVE_MINUTES
-            currentTimeRemaining += FIVE_MINUTES
+        currentTimerLength += FIVE_MINUTES
+        currentTimeRemaining += FIVE_MINUTES
 
-            timer.cancel()
-            timer = createCountDownTimer(currentTimeRemaining)
-            timer.start()
+        when (timerState) {
+            is TimerState.Started,
+            is TimerState.Finished,
+            is TimerState.Progress -> resumeTimer()
+            is TimerState.Paused -> pauseTimer()
+            is TimerState.Stopped -> stopTimer(false)
+            TimerState.Terminated -> terminateTimer()
         }
     }
 
@@ -134,13 +136,15 @@ class TimerService : Service() {
     ) = object : CountDownTimer(millisInFuture, TICK_INTERVAL) {
         var notificationUpdateThreshold = 0L
 
-        override fun onFinish() { finishedRunnable.run() }
+        override fun onFinish() {
+            finishedRunnable.run()
+        }
 
         override fun onTick(millisUntilFinished: Long) {
             notificationUpdateThreshold += currentTimeRemaining - millisUntilFinished
             currentTimeRemaining = millisUntilFinished
 
-            broadcast(TimerState.Running(currentTimerLength, millisUntilFinished))
+            broadcast(TimerState.Progress(currentTimerLength, millisUntilFinished))
 
             // required for smooth progress bar but prevent spamming of notifications
             if (notificationUpdateThreshold >= ONE_SECOND) {

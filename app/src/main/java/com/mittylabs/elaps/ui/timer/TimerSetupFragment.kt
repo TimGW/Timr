@@ -1,42 +1,51 @@
-package com.mittylabs.elaps.ui.main
+package com.mittylabs.elaps.ui.timer
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
+import android.view.*
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
-import com.mittylabs.elaps.databinding.ActivityTimerSettingsBinding
+import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
 import com.mittylabs.elaps.settings.SettingsActivity
-import com.mittylabs.elaps.ui.main.TimerActivity.Companion.INTENT_EXTRA_TIMER_START
 import com.mittylabs.elaps.utils.setOnClickListeners
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
 
 
-class TimerSetupActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityTimerSettingsBinding
+class TimerSetupFragment : Fragment() {
+    private val viewModel: TimerViewModel by activityViewModels()
+    private lateinit var binding: FragmentTimerSettingsBinding
     private lateinit var sliderLayoutManager: SliderLayoutManager
     private var scrollPosition: Int = MINUTES_30 - 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityTimerSettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentTimerSettingsBinding.inflate(layoutInflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         if (savedInstanceState != null) {
             scrollPosition = savedInstanceState.getInt(BUNDLE_EXTRA_SCROLL_POS, 0)
-            updateSelection(scrollPosition)
         }
-
-        setSupportActionBar(binding.appbar.toolbar)
-        supportActionBar?.title = getString(R.string.title_timer)
 
         setupRecyclerView()
         setupMinuteButtons()
+        updateSelection(scrollPosition)
 
         binding.timerStartButton.setOnClickListener { startRunningTimerActivity() }
+
+        viewModel.updateToolbarTitle(getString(R.string.title_timer))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -44,19 +53,19 @@ class TimerSetupActivity : AppCompatActivity() {
         outState.putInt(BUNDLE_EXTRA_SCROLL_POS, scrollPosition)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_settings, menu)
-        return true
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_settings, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                activity?.onBackPressed()
                 true
             }
             R.id.action_settings -> {
-                startActivity(SettingsActivity.launchingIntent(this))
+                startActivity(SettingsActivity.launchingIntent(requireActivity()))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -64,13 +73,13 @@ class TimerSetupActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        sliderLayoutManager = SliderLayoutManager.Builder(this, HORIZONTAL)
+        sliderLayoutManager = SliderLayoutManager.Builder(requireActivity(), HORIZONTAL)
             .setInitialIndex(scrollPosition)
             .setOnScrollListener { scrollPosition = it; updateSelection(scrollPosition) }
             .build()
 
         binding.recyclerView.adapter = TimerAdapter().apply {
-            onItemClick = { sliderLayoutManager.smoothScroll(binding.recyclerView, it) }
+            onItemClick = { sliderLayoutManager.smoothScroll(it) }
         }
         binding.recyclerView.layoutManager = sliderLayoutManager
     }
@@ -92,23 +101,18 @@ class TimerSetupActivity : AppCompatActivity() {
                 R.id.minutes_90 -> MINUTES_90
                 else -> MINUTES_30
             }
-            sliderLayoutManager.smoothScroll(binding.recyclerView, minutes - 1)
+            sliderLayoutManager.smoothScroll(minutes - 1)
         }
     }
 
     private fun startRunningTimerActivity() {
-        val intent = TimerActivity.getLaunchingIntent(this)
         val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L * 60L
-        intent.putExtra(INTENT_EXTRA_TIMER_START, time)
-
-        startActivity(intent)
-        finish()
+        viewModel.updateTimerStart(time)
+        viewModel.updateOpenFragment(TimerFragment.Running)
     }
 
     companion object {
-        fun launchingIntent(ctx: Context?): Intent {
-            return Intent(ctx, TimerSetupActivity::class.java)
-        }
+        fun newInstance() = TimerSetupFragment()
 
         private const val MINUTES_20 = 20
         private const val MINUTES_30 = 30

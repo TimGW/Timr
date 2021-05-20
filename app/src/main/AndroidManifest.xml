@@ -19,13 +19,11 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
 
-        <activity android:name=".ui.main.TimerSetupActivity" />
-
         <activity
             android:name=".settings.SettingsActivity"
-            android:parentActivityName=".ui.main.TimerSetupActivity" />
+            android:parentActivityName=".ui.timer.TimerActivity" />
 
-        <activity android:name=".ui.main.TimerActivity">
+        <activity android:name=".ui.timer.TimerActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
