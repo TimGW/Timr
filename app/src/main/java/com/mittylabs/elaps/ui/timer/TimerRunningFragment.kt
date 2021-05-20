@@ -50,9 +50,12 @@ class TimerRunningFragment : Fragment() {
             if (isPaused) pause() else resume()
         }
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
-        binding.timerTerminateButton.setOnClickListener { terminate() }
         binding.timerResetButton.setOnClickListener { stop() }
         binding.timerExtendButton.setOnClickListener { extend() }
+        binding.timerTerminateButton.setOnClickListener {
+            terminate()
+            viewModel.updateOpenFragment(TimerFragment.Setup)
+        }
     }
 
     /**

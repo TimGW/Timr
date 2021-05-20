@@ -3,6 +3,8 @@ package com.mittylabs.elaps.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
+import androidx.activity.viewModels
+import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.service.NotificationController.NOTIFICATION_ID
 import com.mittylabs.elaps.service.NotificationController.createNotification
 import com.mittylabs.elaps.service.NotificationController.removeNotifications
@@ -12,6 +14,8 @@ import com.mittylabs.elaps.service.NotificationController.updateStopState
 import com.mittylabs.elaps.service.NotificationController.updateTimeLeft
 import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.timer.TimerState
+import com.mittylabs.elaps.ui.timer.TimerViewModel
+import org.koin.android.ext.android.inject
 
 class TimerService : Service() {
 
@@ -32,6 +36,7 @@ class TimerService : Service() {
         var timerState: TimerState = TimerState.Terminated
     }
 
+    private val sharedPrefs: SharedPrefs by inject()
     private lateinit var timer: CountDownTimer
     private var initialTimerLength: Long = 0L
     private var currentTimerLength: Long = 0L
@@ -53,6 +58,7 @@ class TimerService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         if (intent != null) {
             handler.removeCallbacks(finishedRunnable)
 
@@ -74,6 +80,7 @@ class TimerService : Service() {
         initialTimerLength = timerLength
 
         startForeground(NOTIFICATION_ID, createNotification(timerLength))
+        sharedPrefs.setTimerServiceRunning(true)
 
         resumeTimer()
     }
@@ -107,6 +114,7 @@ class TimerService : Service() {
         if (::timer.isInitialized) timer.cancel()
         broadcast(TimerState.Terminated)
         removeNotifications()
+        sharedPrefs.setTimerServiceRunning(false)
         stopSelf()
     }
 

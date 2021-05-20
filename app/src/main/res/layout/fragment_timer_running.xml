@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:indeterminate="false"
         app:indicatorSize="250dp"
-        android:progress="0"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

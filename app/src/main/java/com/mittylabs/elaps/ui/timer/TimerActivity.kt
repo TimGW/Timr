@@ -7,24 +7,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
+import com.mittylabs.elaps.service.TimerService
 import com.mittylabs.elaps.utils.EventObserver
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class TimerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerBinding
     private val timerSetupFragment: Fragment by lazy { TimerSetupFragment.newInstance() }
     private val timerRunningFragment: Fragment by lazy { TimerRunningFragment.newInstance() }
-    private val viewModel: TimerViewModel by viewModels()
+    private val viewModel by viewModel<TimerViewModel>()
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.action == INTENT_EXTRA_TIMER) {
                 val state = intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState ?: return
-
-                if (state !is TimerState.Terminated) {
-                    viewModel.updateTimerState(state) // FIXME
-                } else {
-                    openFragment(timerSetupFragment)
-                }
+                viewModel.updateTimerState(state)
             }
         }
     }
@@ -38,7 +35,10 @@ class TimerActivity : AppCompatActivity() {
 
         viewModel.openFragment.observe(this, EventObserver{
             when (it) {
-                TimerFragment.Running -> openFragment(timerRunningFragment)
+                TimerFragment.Running -> {
+                    openFragment(timerRunningFragment)
+                    viewModel.updateTimerState(TimerService.timerState)
+                }
                 TimerFragment.Setup -> openFragment(timerSetupFragment)
             }
         })
@@ -46,6 +46,7 @@ class TimerActivity : AppCompatActivity() {
         viewModel.toolbarTitle.observe(this, {
             supportActionBar?.title = it
         })
+
     }
 
     override fun onResume() {

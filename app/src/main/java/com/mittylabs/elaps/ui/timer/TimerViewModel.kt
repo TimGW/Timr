@@ -3,11 +3,20 @@ package com.mittylabs.elaps.ui.timer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.utils.Event
 
-class TimerViewModel : ViewModel() {
+class TimerViewModel(
+    sharedPrefs: SharedPrefs
+) : ViewModel() {
 
-    private val _openFragment = MutableLiveData<Event<TimerFragment>>(Event(TimerFragment.Setup))
+    private val default = if(sharedPrefs.isTimerServiceRunning()) {
+        TimerFragment.Running
+    } else {
+        TimerFragment.Setup
+    }
+
+    private val _openFragment = MutableLiveData(Event(default))
     val openFragment: LiveData<Event<TimerFragment>>
         get() = _openFragment
 
