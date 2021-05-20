@@ -43,6 +43,8 @@ class TimerRunningFragment : Fragment() {
         viewModel.timerStart.observe(viewLifecycleOwner, EventObserver { play(it) })
 
         viewModel.updateToolbarTitle("")
+
+        updateTimerState(TimerService.timerState)
     }
 
     private fun initButtonListeners() {

@@ -35,10 +35,7 @@ class TimerActivity : AppCompatActivity() {
 
         viewModel.openFragment.observe(this, EventObserver{
             when (it) {
-                TimerFragment.Running -> {
-                    openFragment(timerRunningFragment)
-                    viewModel.updateTimerState(TimerService.timerState)
-                }
+                TimerFragment.Running -> openFragment(timerRunningFragment)
                 TimerFragment.Setup -> openFragment(timerSetupFragment)
             }
         })

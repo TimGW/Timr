@@ -2,19 +2,14 @@ package com.mittylabs.elaps.service
 
 import android.app.Service
 import android.content.Intent
-import android.os.*
-import androidx.activity.viewModels
+import android.os.CountDownTimer
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import com.mittylabs.elaps.prefs.SharedPrefs
-import com.mittylabs.elaps.service.NotificationController.NOTIFICATION_ID
-import com.mittylabs.elaps.service.NotificationController.createNotification
-import com.mittylabs.elaps.service.NotificationController.removeNotifications
-import com.mittylabs.elaps.service.NotificationController.updateFinishedState
-import com.mittylabs.elaps.service.NotificationController.updatePauseState
-import com.mittylabs.elaps.service.NotificationController.updateStopState
-import com.mittylabs.elaps.service.NotificationController.updateTimeLeft
+import com.mittylabs.elaps.service.NotificationsImpl.Companion.NOTIFICATION_ID
 import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.timer.TimerState
-import com.mittylabs.elaps.ui.timer.TimerViewModel
 import org.koin.android.ext.android.inject
 
 class TimerService : Service() {
@@ -37,6 +32,8 @@ class TimerService : Service() {
     }
 
     private val sharedPrefs: SharedPrefs by inject()
+    private val notifications: Notifications by inject()
+
     private lateinit var timer: CountDownTimer
     private var initialTimerLength: Long = 0L
     private var currentTimerLength: Long = 0L
@@ -48,7 +45,7 @@ class TimerService : Service() {
             try {
                 elapsedFinishedTime -= ONE_SECOND
                 broadcast(TimerState.Finished(true, elapsedFinishedTime))
-                updateFinishedState(elapsedFinishedTime)
+                notifications.updateFinishedState(elapsedFinishedTime, timerState)
             } finally {
                 handler.postDelayed(this, ONE_SECOND)
             }
@@ -79,7 +76,8 @@ class TimerService : Service() {
         currentTimeRemaining = timerLength
         initialTimerLength = timerLength
 
-        startForeground(NOTIFICATION_ID, createNotification(timerLength))
+        val notification = notifications.createNotification(timerLength, timerState)
+        startForeground(NOTIFICATION_ID, notification)
         sharedPrefs.setTimerServiceRunning(true)
 
         resumeTimer()
@@ -95,7 +93,7 @@ class TimerService : Service() {
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
         broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining, true))
-        updatePauseState(currentTimeRemaining)
+        notifications.updatePauseState(currentTimeRemaining, timerState)
     }
 
     private fun stopTimer(resetTime: Boolean) {
@@ -107,13 +105,13 @@ class TimerService : Service() {
         }
 
         broadcast(TimerState.Stopped(currentTimerLength, true))
-        updateStopState(currentTimerLength)
+        notifications.updateStopState(currentTimerLength, timerState)
     }
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
         broadcast(TimerState.Terminated)
-        removeNotifications()
+        notifications.removeNotifications()
         sharedPrefs.setTimerServiceRunning(false)
         stopSelf()
     }
@@ -156,9 +154,9 @@ class TimerService : Service() {
 
             // required for smooth progress bar but prevent spamming of notifications
             if (notificationUpdateThreshold >= ONE_SECOND) {
-                updateTimeLeft(currentTimeRemaining)
+                notifications.updateTimeLeft(currentTimeRemaining, timerState)
                 notificationUpdateThreshold = 0L
             }
         }
-    }.also { updateTimeLeft(currentTimeRemaining) }
+    }.also { notifications.updateTimeLeft(currentTimeRemaining, timerState) }
 }
