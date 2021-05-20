@@ -55,7 +55,6 @@ class TimerService : Service() {
     override fun onBind(intent: Intent): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
         if (intent != null) {
             handler.removeCallbacks(finishedRunnable)
 
@@ -69,6 +68,11 @@ class TimerService : Service() {
             }
         }
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sharedPrefs.setTimerServiceRunning(false)
     }
 
     private fun startTimer(timerLength: Long) {

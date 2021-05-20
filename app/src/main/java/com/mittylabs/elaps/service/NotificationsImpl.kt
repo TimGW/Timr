@@ -20,8 +20,8 @@ import com.mittylabs.elaps.utils.toHumanFormat
 class NotificationsImpl(
     private val context: Context
 ) : Notifications {
-    private lateinit var channelIdRunningTimers: String
-    private lateinit var channelIdFinishedTimers: String
+    private val channelIdRunningTimers = "${context.packageName}.timer.running"
+    private val channelIdFinishedTimers = "${context.packageName}.timer.finished"
 
     private lateinit var pausePendingIntent: PendingIntent
     private lateinit var resumePendingIntent: PendingIntent
@@ -195,8 +195,6 @@ class NotificationsImpl(
     )
 
     private fun createChannels() {
-        channelIdRunningTimers = "${context.packageName}.timer.running"
-        channelIdFinishedTimers = "${context.packageName}.timer.finished"
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val attributes = AudioAttributes.Builder()

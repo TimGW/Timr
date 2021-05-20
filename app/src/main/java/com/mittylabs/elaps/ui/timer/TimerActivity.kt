@@ -22,6 +22,8 @@ class TimerActivity : AppCompatActivity() {
             if (intent.action == INTENT_EXTRA_TIMER) {
                 val state = intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState ?: return
                 viewModel.updateTimerState(state)
+
+                if (state == TimerState.Terminated) openFragment(timerSetupFragment)
             }
         }
     }

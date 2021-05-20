@@ -54,10 +54,7 @@ class TimerRunningFragment : Fragment() {
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
         binding.timerResetButton.setOnClickListener { stop() }
         binding.timerExtendButton.setOnClickListener { extend() }
-        binding.timerTerminateButton.setOnClickListener {
-            terminate()
-            viewModel.updateOpenFragment(TimerFragment.Setup)
-        }
+        binding.timerTerminateButton.setOnClickListener { terminate() }
     }
 
     /**
@@ -121,7 +118,7 @@ class TimerRunningFragment : Fragment() {
     }
 
     private fun play(timeMillis: Long) {
-        if (TimerService.timerState is Progress) return
+        if (viewModel.timerState.value is Progress) return
 
         val intent = Intent(requireActivity(), TimerService::class.java).apply {
             action = TimerService.START_ACTION
@@ -131,16 +128,17 @@ class TimerRunningFragment : Fragment() {
     }
 
     private fun resume() {
-        if (TimerService.timerState is Progress) return
+        if (viewModel.timerState.value is Progress) return
         startTimerService(TimerService.RESUME_ACTION)
     }
 
     private fun pause() {
-        if (TimerService.timerState !is Progress) return
+        if (viewModel.timerState.value !is Progress) return
         startTimerService(TimerService.PAUSE_ACTION)
     }
 
     private fun stop() {
+        if (viewModel.timerState.value is Stopped) return
         startTimerService(TimerService.STOP_ACTION)
     }
 
@@ -149,7 +147,7 @@ class TimerRunningFragment : Fragment() {
     }
 
     private fun terminate() {
-        if (TimerService.timerState is Terminated) return
+        if (viewModel.timerState.value is Terminated) return
         startTimerService(TimerService.TERMINATE_ACTION)
     }
 
