@@ -8,11 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
 import com.mittylabs.elaps.extensions.blink
 import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
@@ -20,9 +22,17 @@ import com.mittylabs.elaps.model.TimerState.*
 import com.mittylabs.elaps.extensions.toHumanFormat
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TimerRunningFragment : Fragment() {
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
+
     private val viewModel: TimerViewModel by activityViewModels()
+
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: FragmentTimerRunningBinding
 
@@ -49,7 +59,9 @@ class TimerRunningFragment : Fragment() {
 
         initButtonListeners()
 
-        viewModel.timerState.observe(viewLifecycleOwner, { updateTimerState(it) })
+        viewModel.timerState.observe(viewLifecycleOwner) { updateTimerState(it) }
+
+        val isResetEnabled = sharedPrefs.getIsResetEnabled()
 
         // deeplink intent received from notification click (not the actions).
         // notification actions call the service and the result gets

@@ -67,4 +67,7 @@ dependencies {
     // Dependency Injection
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
+
+    // Activity transition api
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
 }

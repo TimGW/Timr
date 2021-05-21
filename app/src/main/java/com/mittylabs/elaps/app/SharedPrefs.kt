@@ -10,7 +10,10 @@ class SharedPrefs(
 
     fun getDarkModeSetting() = spm.getIntValue(SHARED_PREF_DARK_MODE)
 
+    fun getIsResetEnabled() = spm.getBoolValue(SHARED_PREF_IS_RESET)
+
     companion object {
         const val SHARED_PREF_DARK_MODE = "SHARED_PREF_DARK_THEME"
+        const val SHARED_PREF_IS_RESET = "timer_reset_walk"
     }
 }

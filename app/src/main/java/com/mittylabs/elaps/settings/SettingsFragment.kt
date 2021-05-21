@@ -7,9 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.*
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +26,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        timerPrefs()
         displayPrefs()
         aboutPrefs()
     }
@@ -45,6 +44,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun setUpButtonVisible(isVisible: Boolean) = (activity as? AppCompatActivity)
         ?.supportActionBar?.setDisplayHomeAsUpEnabled(isVisible)
 
+    private fun timerPrefs() {
+        // todo extra timer preferecens
+    }
     private fun displayPrefs() {
         val darkModePref = (findPreference("dark_mode_key") as? ListPreference)
 
