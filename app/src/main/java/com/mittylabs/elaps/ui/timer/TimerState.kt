@@ -16,6 +16,7 @@ sealed class TimerState : Parcelable {
     data class Progress(
         val currentTimerLength: Long,
         val currentTimeRemaining: Long,
+        val isPlayIconVisible: Boolean
     ) : TimerState()
 
     @Parcelize

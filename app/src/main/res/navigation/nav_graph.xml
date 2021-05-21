@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/timerSetupFragment">
+
+    <fragment
+        android:id="@+id/timerSetupFragment"
+        android:name="com.mittylabs.elaps.ui.timer.TimerSetupFragment"
+        android:label="fragment_timer_settings"
+        tools:layout="@layout/fragment_timer_settings">
+        <action
+            android:id="@+id/show_timer"
+            app:destination="@id/timerRunningFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/timerRunningFragment"
+        android:name="com.mittylabs.elaps.ui.timer.TimerRunningFragment"
+        android:label="TimerRunningFragment"
+        tools:layout="@layout/fragment_timer_running">
+        <action
+            android:id="@+id/show_setup"
+            app:destination="@id/timerSetupFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
+            app:popUpTo="@+id/nav_graph"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <!-- Global actions when started from onServiceConnected callback -->
+    <action
+        android:id="@+id/action_global_timerRunningFragment"
+        app:destination="@id/timerRunningFragment" />
+
+    <action
+        android:id="@+id/action_global_timerSetupFragment"
+        app:destination="@id/timerSetupFragment" />
+
+</navigation>

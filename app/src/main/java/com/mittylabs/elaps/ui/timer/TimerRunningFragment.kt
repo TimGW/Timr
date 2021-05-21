@@ -8,21 +8,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
 import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
 import com.mittylabs.elaps.service.TimerService
+import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.timer.TimerState.*
-import com.mittylabs.elaps.utils.EventObserver
 import com.mittylabs.elaps.utils.blink
 import com.mittylabs.elaps.utils.toHumanFormat
-
 
 class TimerRunningFragment : Fragment() {
     private val viewModel: TimerViewModel by activityViewModels()
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: FragmentTimerRunningBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        activity?.onBackPressedDispatcher?.addCallback(this,
+            object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { activity?.finish() }
+        })
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,11 +50,12 @@ class TimerRunningFragment : Fragment() {
 
         viewModel.timerState.observe(viewLifecycleOwner, { updateTimerState(it) })
 
-        viewModel.timerStart.observe(viewLifecycleOwner, EventObserver { play(it) })
-
-        viewModel.updateToolbarTitle("")
-
-        updateTimerState(TimerService.timerState)
+        // deeplink intent received from notification click (not the actions).
+        // notification actions call the service and the result gets
+        // broadcasted and updated via the shared viewmodel
+        if (arguments?.isEmpty == false) {
+            updateTimerState(arguments?.getParcelable(INTENT_EXTRA_TIMER))
+        }
     }
 
     private fun initButtonListeners() {
@@ -54,14 +65,17 @@ class TimerRunningFragment : Fragment() {
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
         binding.timerResetButton.setOnClickListener { stop() }
         binding.timerExtendButton.setOnClickListener { extend() }
-        binding.timerTerminateButton.setOnClickListener { terminate() }
+        binding.timerTerminateButton.setOnClickListener { v ->
+            v.findNavController().navigate(TimerRunningFragmentDirections.showSetup())
+            terminate()
+        }
     }
 
     /**
      * updateTimerState.Progress will be called every 50MS to provide a smooth progress experience,
      * so keep the function as light as possible
      */
-    private fun updateTimerState(timerState: TimerState) {
+    private fun updateTimerState(timerState: TimerState?) {
         when (timerState) {
             is Started -> {
                 binding.timerTextView.clearAnimation()
@@ -69,25 +83,23 @@ class TimerRunningFragment : Fragment() {
             }
             is Progress -> {
                 updateProgress(timerState.currentTimerLength, timerState.currentTimeRemaining)
+                updateToggleState(timerState.isPlayIconVisible)
             }
             is Paused -> {
-                binding.timerTextView.blink()
-                updateToggleState(timerState.isPlayIconVisible)
                 updateProgress(timerState.currentTimerLength, timerState.currentTimeRemaining)
+                updateToggleState(timerState.isPlayIconVisible)
+                binding.timerTextView.blink()
             }
             is Stopped -> {
                 binding.timerTextView.clearAnimation()
-                updateToggleState(timerState.isPlayIconVisible)
                 updateProgress(timerState.initialTimerLength, timerState.initialTimerLength)
+                updateToggleState(timerState.isPlayIconVisible)
             }
             is Finished -> {
-                updateToggleState(timerState.isPlayIconVisible)
                 binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
+                updateToggleState(timerState.isPlayIconVisible)
             }
-            is Terminated -> {
-                binding.timerTextView.clearAnimation()
-                updateToggleState(true)
-            }
+            is Terminated, null -> { /** do nothing **/ }
         }
     }
 
@@ -107,7 +119,7 @@ class TimerRunningFragment : Fragment() {
 
     private fun updateProgress(length: Long, remaining: Long) {
         binding.timerTextView.text = remaining.toHumanFormat()
-        binding.timerProgressBar.max = (length - MILLISECOND).toInt() // todo extract
+        binding.timerProgressBar.max = (length - MILLISECOND).toInt()
 
         val progress = ((length - MILLISECOND) - (remaining - MILLISECOND)).toInt()
         if (VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -115,16 +127,6 @@ class TimerRunningFragment : Fragment() {
         } else {
             binding.timerProgressBar.progress = progress
         }
-    }
-
-    private fun play(timeMillis: Long) {
-        if (viewModel.timerState.value is Progress) return
-
-        val intent = Intent(requireActivity(), TimerService::class.java).apply {
-            action = TimerService.START_ACTION
-            putExtra(TimerService.TIMER_LENGTH_EXTRA, timeMillis)
-        }
-        ContextCompat.startForegroundService(requireActivity(), intent)
     }
 
     private fun resume() {
@@ -158,8 +160,6 @@ class TimerRunningFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance() = TimerRunningFragment()
-
         const val MILLISECOND = 1000L
     }
 }

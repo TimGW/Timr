@@ -1,16 +1,20 @@
 package com.mittylabs.elaps.ui.timer
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
+import com.mittylabs.elaps.service.TimerService
 import com.mittylabs.elaps.settings.SettingsActivity
 import com.mittylabs.elaps.utils.setOnClickListeners
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
-
 
 class TimerSetupFragment : Fragment() {
     private val viewModel: TimerViewModel by activityViewModels()
@@ -43,9 +47,18 @@ class TimerSetupFragment : Fragment() {
         setupMinuteButtons()
         updateSelection(scrollPosition)
 
-        binding.timerStartButton.setOnClickListener { startRunningTimerActivity() }
+        binding.timerStartButton.setOnClickListener { v ->
+            if (viewModel.timerState.value is TimerState.Progress) return@setOnClickListener
 
-        viewModel.updateToolbarTitle(getString(R.string.title_timer))
+            v.findNavController().navigate(TimerSetupFragmentDirections.showTimer())
+
+            ContextCompat.startForegroundService(
+                requireActivity(),
+                Intent(requireActivity(), TimerService::class.java).apply {
+                    action = TimerService.START_ACTION
+                    putExtra(TimerService.TIMER_LENGTH_EXTRA, getTime())
+                })
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -105,15 +118,9 @@ class TimerSetupFragment : Fragment() {
         }
     }
 
-    private fun startRunningTimerActivity() {
-        val time = binding.timerSelectedMinutes.text.toString().toLong() * 1000L * 60L
-        viewModel.updateTimerStart(time)
-        viewModel.updateOpenFragment(TimerFragment.Running)
-    }
+    private fun getTime() = binding.timerSelectedMinutes.text.toString().toLong() * 1000L * 60L
 
     companion object {
-        fun newInstance() = TimerSetupFragment()
-
         private const val MINUTES_20 = 20
         private const val MINUTES_30 = 30
         private const val MINUTES_45 = 45

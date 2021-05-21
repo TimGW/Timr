@@ -2,30 +2,49 @@ package com.mittylabs.elaps.ui.timer
 
 import android.content.*
 import android.os.Bundle
-import androidx.activity.viewModels
+import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.NavHostFragment
+import com.mittylabs.elaps.NavGraphDirections
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.service.TimerService
-import com.mittylabs.elaps.utils.EventObserver
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class TimerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerBinding
-    private val timerSetupFragment: Fragment by lazy { TimerSetupFragment.newInstance() }
-    private val timerRunningFragment: Fragment by lazy { TimerRunningFragment.newInstance() }
     private val viewModel by viewModel<TimerViewModel>()
 
+    // state received from service broadcasts when app is in foreground
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.action == INTENT_EXTRA_TIMER) {
-                val state = intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState ?: return
-                viewModel.updateTimerState(state)
-
-                if (state == TimerState.Terminated) openFragment(timerSetupFragment)
+                viewModel.updateTimerState(
+                    intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState
+                )
             }
         }
+    }
+
+    // Defines callbacks for service binding when app is killed
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, iBinder: IBinder) {
+            val service = (iBinder as TimerService.LocalBinder).getService()
+
+            // timer is just starting, let fragment handle the navigation
+            if (service.timerState is TimerState.Started) return
+
+            // service is resumed, open the correct fragment
+            if (service.timerState !is TimerState.Terminated) {
+                viewModel.updateTimerState(service.timerState)
+                navigateTo(NavGraphDirections.actionGlobalTimerRunningFragment())
+            } else {
+                navigateTo(NavGraphDirections.actionGlobalTimerSetupFragment())
+            }
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,18 +53,13 @@ class TimerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appbar.toolbar)
+    }
 
-        viewModel.openFragment.observe(this, EventObserver{
-            when (it) {
-                TimerFragment.Running -> openFragment(timerRunningFragment)
-                TimerFragment.Setup -> openFragment(timerSetupFragment)
-            }
-        })
-
-        viewModel.toolbarTitle.observe(this, {
-            supportActionBar?.title = it
-        })
-
+    override fun onStart() {
+        super.onStart()
+        Intent(this, TimerService::class.java).also { intent ->
+            bindService(intent, connection, 0) // don't auto create
+        }
     }
 
     override fun onResume() {
@@ -60,12 +74,15 @@ class TimerActivity : AppCompatActivity() {
         unregisterReceiver(receiver)
     }
 
-    private fun openFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().apply {
-            setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-            replace(R.id.content_frame, fragment)
-            commit()
-        }
+    override fun onStop() {
+        super.onStop()
+        unbindService(connection)
+    }
+
+    private fun navigateTo(action: NavDirections) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        val navController = (navHostFragment as NavHostFragment).navController
+        navController.navigate(action)
     }
 
     companion object {

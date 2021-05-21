@@ -2,10 +2,7 @@ package com.mittylabs.elaps.service
 
 import android.app.Service
 import android.content.Intent
-import android.os.CountDownTimer
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
+import android.os.*
 import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.service.NotificationsImpl.Companion.NOTIFICATION_ID
 import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
@@ -27,12 +24,13 @@ class TimerService : Service() {
         const val EXTEND_ACTION = "EXTEND"
 
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
-
-        var timerState: TimerState = TimerState.Terminated
     }
 
-    private val sharedPrefs: SharedPrefs by inject()
+    private val binder = LocalBinder()
     private val notifications: Notifications by inject()
+
+    var timerState: TimerState = TimerState.Terminated
+        private set
 
     private lateinit var timer: CountDownTimer
     private var initialTimerLength: Long = 0L
@@ -52,7 +50,11 @@ class TimerService : Service() {
         }
     }
 
-    override fun onBind(intent: Intent): IBinder? = null
+    inner class LocalBinder : Binder() {
+        fun getService(): TimerService = this@TimerService
+    }
+
+    override fun onBind(intent: Intent): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent != null) {
@@ -70,11 +72,6 @@ class TimerService : Service() {
         return START_NOT_STICKY
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sharedPrefs.setTimerServiceRunning(false)
-    }
-
     private fun startTimer(timerLength: Long) {
         currentTimerLength = timerLength
         currentTimeRemaining = timerLength
@@ -82,13 +79,13 @@ class TimerService : Service() {
 
         val notification = notifications.createNotification(timerLength, timerState)
         startForeground(NOTIFICATION_ID, notification)
-        sharedPrefs.setTimerServiceRunning(true)
 
         resumeTimer()
     }
 
     private fun resumeTimer() {
         if (::timer.isInitialized) timer.cancel()
+
         timer = createCountDownTimer(currentTimeRemaining)
         timer.start()
         broadcast(TimerState.Started(currentTimerLength, currentTimeRemaining, false))
@@ -96,13 +93,13 @@ class TimerService : Service() {
 
     private fun pauseTimer() {
         if (::timer.isInitialized) timer.cancel()
+
         broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining, true))
         notifications.updatePauseState(currentTimeRemaining, timerState)
     }
 
     private fun stopTimer(resetTime: Boolean) {
         if (::timer.isInitialized) timer.cancel()
-
         if (resetTime) {
             currentTimerLength = initialTimerLength
             currentTimeRemaining = initialTimerLength
@@ -114,9 +111,9 @@ class TimerService : Service() {
 
     private fun terminateTimer() {
         if (::timer.isInitialized) timer.cancel()
-        broadcast(TimerState.Terminated)
+
         notifications.removeNotifications()
-        sharedPrefs.setTimerServiceRunning(false)
+        broadcast(TimerState.Terminated)
         stopSelf()
     }
 
@@ -154,7 +151,7 @@ class TimerService : Service() {
             notificationUpdateThreshold += currentTimeRemaining - millisUntilFinished
             currentTimeRemaining = millisUntilFinished
 
-            broadcast(TimerState.Progress(currentTimerLength, millisUntilFinished))
+            broadcast(TimerState.Progress(currentTimerLength, millisUntilFinished, false))
 
             // required for smooth progress bar but prevent spamming of notifications
             if (notificationUpdateThreshold >= ONE_SECOND) {
