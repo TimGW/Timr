@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui.timer
+package com.mittylabs.elaps.timer
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,8 +11,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
+import com.mittylabs.elaps.extensions.setOnClickListeners
+import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
-import com.mittylabs.elaps.utils.setOnClickListeners
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
 
 class TimerSetupFragment : Fragment() {

@@ -3,9 +3,10 @@ package com.mittylabs.elaps.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
-import com.mittylabs.elaps.service.NotificationsImpl.Companion.NOTIFICATION_ID
-import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.ui.timer.TimerState
+import com.mittylabs.elaps.notification.Notifications
+import com.mittylabs.elaps.notification.NotificationsImpl.Companion.NOTIFICATION_ID
+import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.elaps.model.TimerState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

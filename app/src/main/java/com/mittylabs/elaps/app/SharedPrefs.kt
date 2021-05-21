@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.prefs
+package com.mittylabs.elaps.app
 
 class SharedPrefs(
     private val spm: SharedPrefManager

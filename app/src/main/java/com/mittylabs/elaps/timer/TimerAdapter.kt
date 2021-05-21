@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui.timer
+package com.mittylabs.elaps.timer
 
 import android.view.LayoutInflater
 import android.view.View

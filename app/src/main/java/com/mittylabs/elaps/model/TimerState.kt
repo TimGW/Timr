@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui.timer
+package com.mittylabs.elaps.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

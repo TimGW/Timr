@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.service
+package com.mittylabs.elaps.notification
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -15,10 +15,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDeepLinkBuilder
 import com.mittylabs.elaps.R
-import com.mittylabs.elaps.ui.timer.TimerActivity
-import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.ui.timer.TimerState
-import com.mittylabs.elaps.utils.toHumanFormat
+import com.mittylabs.elaps.timer.TimerActivity
+import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.elaps.extensions.toHumanFormat
+import com.mittylabs.elaps.service.TimerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

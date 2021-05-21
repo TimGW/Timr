@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.utils
+package com.mittylabs.elaps.extensions
 
 import android.view.View
 import android.view.animation.AlphaAnimation

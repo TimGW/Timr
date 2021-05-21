@@ -1,7 +1,7 @@
-package com.mittylabs.elaps
+package com.mittylabs.elaps.service
 
-import com.mittylabs.elaps.service.Notifications
-import com.mittylabs.elaps.service.NotificationsImpl
+import com.mittylabs.elaps.notification.Notifications
+import com.mittylabs.elaps.notification.NotificationsImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

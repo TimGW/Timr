@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <application
-        android:name=".ElapsApp"
+        android:name=".app.ElapsApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
 
-        <activity android:name=".ui.timer.TimerActivity"
+        <activity android:name=".timer.TimerActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

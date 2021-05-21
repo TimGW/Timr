@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.prefs
+package com.mittylabs.elaps.app
 
 import android.content.Context
 import androidx.preference.PreferenceManager

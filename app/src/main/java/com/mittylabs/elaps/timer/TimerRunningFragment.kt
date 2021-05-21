@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui.timer
+package com.mittylabs.elaps.timer
 
 import android.content.Intent
 import android.os.Build
@@ -14,11 +14,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
+import com.mittylabs.elaps.extensions.blink
+import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.elaps.model.TimerState.*
+import com.mittylabs.elaps.extensions.toHumanFormat
+import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
-import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.ui.timer.TimerState.*
-import com.mittylabs.elaps.utils.blink
-import com.mittylabs.elaps.utils.toHumanFormat
 
 class TimerRunningFragment : Fragment() {
     private val viewModel: TimerViewModel by activityViewModels()

@@ -1,8 +1,7 @@
-package com.mittylabs.elaps
+package com.mittylabs.elaps.app
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.mittylabs.elaps.prefs.SharedPrefs
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 

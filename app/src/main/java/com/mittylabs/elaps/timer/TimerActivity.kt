@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.ui.timer
+package com.mittylabs.elaps.timer
 
 import android.content.*
 import android.os.Bundle
@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.mittylabs.elaps.NavGraphDirections
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
+import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
 import dagger.hilt.android.AndroidEntryPoint
 
