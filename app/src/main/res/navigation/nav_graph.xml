@@ -15,7 +15,19 @@
             app:destination="@id/timerRunningFragment"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out" />
+        <action
+            android:id="@+id/show_app_settings"
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
     </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.mittylabs.elaps.ui.timer.SettingsFragment"
+        android:label="SettingsFragment" />
 
     <fragment
         android:id="@+id/timerRunningFragment"

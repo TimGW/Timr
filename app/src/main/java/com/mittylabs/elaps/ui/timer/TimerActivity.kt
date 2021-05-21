@@ -79,6 +79,11 @@ class TimerActivity : AppCompatActivity() {
         unbindService(connection)
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     private fun navigateTo(action: NavDirections) {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
         val navController = (navHostFragment as NavHostFragment).navController

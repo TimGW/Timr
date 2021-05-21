@@ -19,10 +19,6 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
 
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:parentActivityName=".ui.timer.TimerActivity" />
-
         <activity android:name=".ui.timer.TimerActivity"
             android:launchMode="singleTop">
             <intent-filter>

@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.settings
+package com.mittylabs.elaps.ui.timer
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.ListPreference
 import androidx.preference.Preference
@@ -29,6 +30,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
         displayPrefs()
         aboutPrefs()
     }
+
+    override fun onStart() {
+        super.onStart()
+        setUpButtonVisible(true)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        setUpButtonVisible(false)
+    }
+
+    private fun setUpButtonVisible(isVisible: Boolean) = (activity as? AppCompatActivity)
+        ?.supportActionBar?.setDisplayHomeAsUpEnabled(isVisible)
 
     private fun displayPrefs() {
         val darkModePref = (findPreference("dark_mode_key") as? ListPreference)

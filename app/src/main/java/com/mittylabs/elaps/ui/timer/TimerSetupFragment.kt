@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
 import com.mittylabs.elaps.service.TimerService
-import com.mittylabs.elaps.settings.SettingsActivity
 import com.mittylabs.elaps.utils.setOnClickListeners
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
 
@@ -78,7 +77,7 @@ class TimerSetupFragment : Fragment() {
                 true
             }
             R.id.action_settings -> {
-                startActivity(SettingsActivity.launchingIntent(requireActivity()))
+                findNavController().navigate(TimerSetupFragmentDirections.showAppSettings())
                 true
             }
             else -> super.onOptionsItemSelected(item)
