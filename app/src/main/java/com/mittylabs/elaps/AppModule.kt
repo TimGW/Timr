@@ -4,11 +4,21 @@ import com.mittylabs.elaps.prefs.SharedPrefManager
 import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.service.Notifications
 import com.mittylabs.elaps.service.NotificationsImpl
-import org.koin.android.ext.koin.androidContext
-import org.koin.dsl.module
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ServiceComponent
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
-val appModule = module {
-    single { SharedPrefManager(androidContext()) }
-    single { SharedPrefs(get()) }
-    factory<Notifications> { NotificationsImpl(androidContext()) }
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    @Provides
+    fun providesSharedPreferences(
+        sharedPrefManager: SharedPrefManager
+    ): SharedPrefs = SharedPrefs(sharedPrefManager)
 }

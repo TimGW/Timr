@@ -13,11 +13,14 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.prefs.SharedPrefs
-import org.koin.android.ext.android.inject
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat() {
-    private val sharedPrefs: SharedPrefs by inject()
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey)

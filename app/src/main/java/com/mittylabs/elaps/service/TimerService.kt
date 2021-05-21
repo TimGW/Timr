@@ -3,12 +3,13 @@ package com.mittylabs.elaps.service
 import android.app.Service
 import android.content.Intent
 import android.os.*
-import com.mittylabs.elaps.prefs.SharedPrefs
 import com.mittylabs.elaps.service.NotificationsImpl.Companion.NOTIFICATION_ID
 import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.timer.TimerState
-import org.koin.android.ext.android.inject
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TimerService : Service() {
 
     companion object {
@@ -26,8 +27,8 @@ class TimerService : Service() {
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
     }
 
-    private val binder = LocalBinder()
-    private val notifications: Notifications by inject()
+    @Inject
+    lateinit var notifications: Notifications
 
     var timerState: TimerState = TimerState.Terminated
         private set
@@ -37,6 +38,7 @@ class TimerService : Service() {
     private var currentTimerLength: Long = 0L
     private var currentTimeRemaining: Long = 0L
     private var elapsedFinishedTime = 0L
+    private val binder = LocalBinder()
     private val handler: Handler = Handler(Looper.getMainLooper())
     private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {

@@ -3,6 +3,7 @@ package com.mittylabs.elaps.ui.timer
 import android.content.*
 import android.os.Bundle
 import android.os.IBinder
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
@@ -10,11 +11,12 @@ import com.mittylabs.elaps.NavGraphDirections
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.service.TimerService
-import org.koin.android.viewmodel.ext.android.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TimerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTimerBinding
-    private val viewModel by viewModel<TimerViewModel>()
+    private val viewModel by viewModels<TimerViewModel>()
 
     // state received from service broadcasts when app is in foreground
     private val receiver = object : BroadcastReceiver() {

@@ -19,9 +19,11 @@ import com.mittylabs.elaps.ui.timer.TimerActivity
 import com.mittylabs.elaps.ui.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.ui.timer.TimerState
 import com.mittylabs.elaps.utils.toHumanFormat
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class NotificationsImpl(
-    private val context: Context
+class NotificationsImpl @Inject constructor(
+    @ApplicationContext private val context: Context
 ) : Notifications {
     private val channelIdRunningTimers = "${context.packageName}.timer.running"
     private val channelIdFinishedTimers = "${context.packageName}.timer.finished"

@@ -2,9 +2,11 @@ package com.mittylabs.elaps.prefs
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class SharedPrefManager(
-    context: Context
+class SharedPrefManager @Inject constructor(
+    @ApplicationContext context: Context
 ) {
     private val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
