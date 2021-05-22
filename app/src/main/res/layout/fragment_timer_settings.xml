@@ -197,17 +197,15 @@
             app:layout_constraintTop_toTopOf="@+id/minutes_45"
             app:layout_constraintWidth_percent=".10" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/timer_start_button"
             android:layout_width="75dp"
             android:layout_height="75dp"
-            android:layout_gravity="center_horizontal"
             android:layout_marginBottom="32dp"
-            android:clickable="true"
-            android:focusable="true"
+            android:scaleType="fitXY"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play_circle_filled"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
