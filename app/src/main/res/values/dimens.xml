@@ -20,4 +20,5 @@
     <dimen name="timer_preset_size">40dp</dimen>
 
     <dimen name="padding_list_item_timer_slider">8dp</dimen>
+    <dimen name="max_height_slider">150dp</dimen>
 </resources>

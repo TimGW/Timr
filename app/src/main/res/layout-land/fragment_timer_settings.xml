@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.15" />
+            app:layout_constraintGuide_percent="0.2" />
 
 
         <androidx.constraintlayout.widget.Guideline
@@ -24,18 +24,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.85" />
+            app:layout_constraintGuide_percent="0.8" />
 
         <TextView
             android:id="@+id/timer_selected_minutes"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight="1"
+            android:includeFontPadding="false"
             android:text="@string/initial_timer_setting"
-            android:textSize="72sp"
-            app:layout_constraintEnd_toEndOf="@+id/recycler_view"
-            app:layout_constraintStart_toStartOf="@+id/recycler_view"
+            android:textAlignment="center"
+            app:autoSizeMaxTextSize="200sp"
+            app:autoSizeMinTextSize="40sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintHeight_percent="0.20"
+            app:layout_constraintStart_toStartOf="@+id/guideline3"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -51,11 +55,14 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="0dp"
-            android:layout_height="100dp"
+            android:layout_height="0dp"
             android:layout_marginTop="32dp"
-            app:layout_constraintStart_toStartOf="@id/guideline3"
+            android:layout_marginBottom="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/guideline2"
-            app:layout_constraintTop_toBottomOf="@id/minutes" />
+            app:layout_constraintHeight_max="@dimen/max_height_slider"
+            app:layout_constraintStart_toStartOf="@id/guideline3"
+            app:layout_constraintTop_toBottomOf="@+id/minutes" />
 
         <View
             android:layout_width="0dp"
@@ -92,33 +99,43 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:padding="0dp"
+            android:padding="6dp"
             android:text="@string/minutes_20"
+            android:textAlignment="center"
             android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
             android:textStyle="bold"
-            app:cornerRadius="30dp"
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:cornerRadius="100dp"
             app:layout_constraintBottom_toTopOf="@+id/minutes_30"
             app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintStart_toStartOf="@id/minutes_45"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/minutes_30"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/timer_preset_size"
+            android:layout_height="@dimen/timer_preset_size"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:padding="0dp"
+            android:padding="6dp"
             android:text="@string/minutes_30"
+            android:textAlignment="center"
             android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
             android:textStyle="bold"
-            app:cornerRadius="30dp"
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:cornerRadius="100dp"
             app:layout_constraintBottom_toTopOf="@+id/minutes_45"
             app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintStart_toStartOf="@id/minutes_45"
             app:layout_constraintTop_toBottomOf="@+id/minutes_20" />
 
         <com.google.android.material.button.MaterialButton
@@ -129,13 +146,18 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:padding="0dp"
+            android:padding="6dp"
             android:text="@string/minutes_45"
+            android:textAlignment="center"
             android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
             android:textStyle="bold"
-            app:cornerRadius="30dp"
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:cornerRadius="100dp"
             app:layout_constraintBottom_toTopOf="@+id/minutes_60"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/minutes_30" />
@@ -148,14 +170,19 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:padding="0dp"
+            android:padding="6dp"
             android:text="@string/minutes_60"
+            android:textAlignment="center"
             android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
             android:textStyle="bold"
-            app:cornerRadius="30dp"
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:cornerRadius="100dp"
             app:layout_constraintBottom_toTopOf="@+id/minutes_90"
             app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintStart_toStartOf="@id/minutes_45"
             app:layout_constraintTop_toBottomOf="@+id/minutes_45" />
 
         <com.google.android.material.button.MaterialButton
@@ -166,14 +193,19 @@
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            android:padding="0dp"
+            android:padding="6dp"
             android:text="@string/minutes_90"
+            android:textAlignment="center"
             android:textColor="@color/color_on_primary"
-            android:textSize="@dimen/text_size_timer_preset"
             android:textStyle="bold"
-            app:cornerRadius="30dp"
+            app:autoSizeMaxTextSize="30sp"
+            app:autoSizeMinTextSize="12sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform"
+            app:cornerRadius="100dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/minutes_45"
+            app:layout_constraintStart_toStartOf="@id/minutes_45"
             app:layout_constraintTop_toBottomOf="@+id/minutes_60" />
 
         <ImageView
@@ -185,9 +217,11 @@
             android:focusable="true"
             android:src="@drawable/ic_play_circle_filled"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
