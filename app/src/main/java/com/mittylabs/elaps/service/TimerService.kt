@@ -1,12 +1,23 @@
 package com.mittylabs.elaps.service
 
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.*
+import android.util.Log
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.DetectedActivity
+import com.mittylabs.elaps.R
+import com.mittylabs.elaps.app.SharedPrefs
+import com.mittylabs.elaps.extensions.toasty
 import com.mittylabs.elaps.notification.Notifications
 import com.mittylabs.elaps.notification.NotificationsImpl.Companion.NOTIFICATION_ID
 import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.elaps.timer.TimerActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,10 +37,16 @@ class TimerService : Service() {
         const val EXTEND_ACTION = "EXTEND"
 
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
+
+        const val INTENT_EXTRA_SERVICE = "INTENT_EXTRA_SERVICE"
+        const val INTENT_EXTRA_ACTIVITY_TYPE = "INTENT_EXTRA_ACTIVITY_TYPE"
     }
 
     @Inject
     lateinit var notifications: Notifications
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
 
     var timerState: TimerState = TimerState.Terminated
         private set
@@ -49,6 +66,22 @@ class TimerService : Service() {
                 notifications.updateFinishedState(elapsedFinishedTime, timerState)
             } finally {
                 handler.postDelayed(this, ONE_SECOND)
+            }
+        }
+    }
+
+    private val userActivityReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == INTENT_EXTRA_SERVICE) {
+                when (intent.getIntExtra(INTENT_EXTRA_ACTIVITY_TYPE, -1)) {
+                    DetectedActivity.ON_FOOT,
+                    DetectedActivity.RUNNING,
+                    DetectedActivity.WALKING -> {
+                        stopTimer(true)
+                        resumeTimer()
+                        toasty(getString(R.string.toast_reset_timer))
+                    }
+                }
             }
         }
     }
@@ -80,8 +113,16 @@ class TimerService : Service() {
         currentTimeRemaining = timerLength
         initialTimerLength = timerLength
 
-        val notification = notifications.createNotification(timerLength, timerState)
+        val notification = notifications.getOrCreateNotification(timerLength, timerState)
         startForeground(NOTIFICATION_ID, notification)
+
+        if (sharedPrefs.getIsResetEnabled()) {
+            registerReceiver(userActivityReceiver, IntentFilter(INTENT_EXTRA_SERVICE))
+            ContextCompat.startForegroundService(
+                this,
+                Intent(this, DetectingActivityService::class.java)
+            )
+        }
 
         resumeTimer()
     }
@@ -118,6 +159,11 @@ class TimerService : Service() {
         notifications.removeNotifications()
         broadcast(TimerState.Terminated)
         stopSelf()
+
+        if (sharedPrefs.getIsResetEnabled()) {
+            stopService(Intent(this, DetectingActivityService::class.java))
+            unregisterReceiver(userActivityReceiver)
+        }
     }
 
     private fun extendTimer() {

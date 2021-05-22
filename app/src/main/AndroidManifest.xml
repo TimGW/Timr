@@ -31,6 +31,14 @@
         <service
             android:name=".service.TimerService"
             android:exported="false" />
+
+        <service
+            android:name=".service.DetectingActivityService"
+            android:exported="false" />
+
+        <service
+            android:name=".service.DetectedActivitiesIntentService"
+            android:exported="false" />
     </application>
 
 </manifest>

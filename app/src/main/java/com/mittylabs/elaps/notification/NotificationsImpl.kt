@@ -15,11 +15,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavDeepLinkBuilder
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.extensions.toHumanFormat
+import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.elaps.service.TimerService
 import com.mittylabs.elaps.timer.TimerActivity
 import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.extensions.toHumanFormat
-import com.mittylabs.elaps.service.TimerService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -28,15 +28,19 @@ class NotificationsImpl @Inject constructor(
 ) : Notifications {
     private val channelIdRunningTimers = "${context.packageName}.timer.running"
     private val channelIdFinishedTimers = "${context.packageName}.timer.finished"
+    private var notification: Notification? = null
 
     companion object {
         private const val REQUEST_CODE = 29
         const val NOTIFICATION_ID = 2308
     }
 
-    override fun createNotification(timerLength: Long, timerState: TimerState): Notification {
-        createChannels()
-        return playStateNotification(timerLength, timerState)
+    override fun getOrCreateNotification(timerLength: Long, timerState: TimerState): Notification {
+        if (notification == null) {
+            createChannels()
+            notification = playStateNotification(timerLength, timerState)
+        }
+        return notification as Notification
     }
 
     override fun updateTimeLeft(remainingTimeMillis: Long, timerState: TimerState) {
@@ -51,12 +55,14 @@ class NotificationsImpl @Inject constructor(
     }
 
     override fun updatePauseState(currentTimeRemaining: Long, timerState: TimerState) {
-        val resumePendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val resumePendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.RESUME_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val stopPendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val stopPendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.STOP_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
@@ -96,7 +102,8 @@ class NotificationsImpl @Inject constructor(
             )
         }
 
-        val terminatePendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val terminatePendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.TERMINATE_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
@@ -124,12 +131,14 @@ class NotificationsImpl @Inject constructor(
     }
 
     override fun updateFinishedState(elapsedTime: Long, timerState: TimerState) {
-        val extendPendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val extendPendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.EXTEND_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val terminatePendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val terminatePendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.TERMINATE_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
@@ -238,12 +247,14 @@ class NotificationsImpl @Inject constructor(
         remainingTimeMillis: Long,
         timerState: TimerState
     ): Notification {
-        val pausePendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val pausePendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.PAUSE_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val extendPendingIntent = PendingIntent.getService(context, REQUEST_CODE,
+        val extendPendingIntent = PendingIntent.getService(
+            context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.EXTEND_ACTION
             }, PendingIntent.FLAG_UPDATE_CURRENT
