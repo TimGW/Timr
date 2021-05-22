@@ -1,20 +1,23 @@
 package com.mittylabs.elaps.service
 
-import android.app.IntentService
+import android.content.Context
 import android.content.Intent
+import androidx.core.app.JobIntentService
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.service.TimerService.Companion.INTENT_EXTRA_ACTIVITY_TYPE
 
-class DetectedActivitiesIntentService : IntentService(TAG) {
+class WalkDetectionJobIntentService : JobIntentService() {
 
-    override fun onHandleIntent(intent: Intent?) {
-        if (intent == null) return
+    override fun onHandleWork(intent: Intent) {
         val result = ActivityRecognitionResult.extractResult(intent)
-        val detectedActivities = result?.probableActivities as List<*>
-        for (activity in detectedActivities) {
-            broadcastActivity(activity as DetectedActivity)
+        val detectedActivities = result?.probableActivities as? List<*>
+
+        detectedActivities?.forEach {
+            broadcastActivity(it as DetectedActivity)
         }
+
+        stopSelf()
     }
 
     private fun broadcastActivity(activity: DetectedActivity) {
@@ -24,6 +27,10 @@ class DetectedActivitiesIntentService : IntentService(TAG) {
     }
 
     companion object {
-        private val TAG = DetectedActivitiesIntentService::class.java.simpleName
+        private const val JOB_ID = 1000
+
+        fun enqueueWork(context: Context, work: Intent) {
+            enqueueWork(context, WalkDetectionJobIntentService::class.java, JOB_ID, work)
+        }
     }
 }

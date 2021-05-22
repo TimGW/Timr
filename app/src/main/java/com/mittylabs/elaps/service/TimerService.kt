@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.*
-import android.util.Log
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.R
@@ -17,7 +15,6 @@ import com.mittylabs.elaps.notification.Notifications
 import com.mittylabs.elaps.notification.NotificationsImpl.Companion.NOTIFICATION_ID
 import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.timer.TimerActivity
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -120,7 +117,7 @@ class TimerService : Service() {
             registerReceiver(userActivityReceiver, IntentFilter(INTENT_EXTRA_SERVICE))
             ContextCompat.startForegroundService(
                 this,
-                Intent(this, DetectingActivityService::class.java)
+                Intent(this, WalkDetectionService::class.java)
             )
         }
 
@@ -161,7 +158,7 @@ class TimerService : Service() {
         stopSelf()
 
         if (sharedPrefs.getIsResetEnabled()) {
-            stopService(Intent(this, DetectingActivityService::class.java))
+            stopService(Intent(this, WalkDetectionService::class.java))
             unregisterReceiver(userActivityReceiver)
         }
     }

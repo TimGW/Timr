@@ -13,7 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class DetectingActivityService : Service() {
+class WalkDetectionService : Service() {
 
     @Inject
     lateinit var notifications: Notifications
@@ -35,10 +35,10 @@ class DetectingActivityService : Service() {
 
         activityRecognitionClient = ActivityRecognitionClient(this)
 
-        pendingIntent = PendingIntent.getService(
+        pendingIntent = PendingIntent.getBroadcast(
             this,
             1,
-            Intent(this, DetectedActivitiesIntentService::class.java),
+            Intent(this, WalkDetectionReceiver::class.java),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
 
