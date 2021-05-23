@@ -1,10 +1,13 @@
 package com.mittylabs.elaps.timer
 
 import android.content.*
+import android.graphics.drawable.Animatable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
@@ -57,6 +60,11 @@ class TimerActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setSupportActionBar(binding.appbar.toolbar)
+
+        // todo animated drawable for splashscreen api Android S
+//        val drawable= ContextCompat.getDrawable(this, R.drawable.ic_timer_animated) as Animatable
+//        drawable.stop()
+//        drawable.start()
     }
 
     override fun onStart() {
