@@ -28,9 +28,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TimerRunningFragment : Fragment() {
 
-    @Inject
-    lateinit var sharedPrefs: SharedPrefs
-
     private val viewModel: TimerViewModel by activityViewModels()
 
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
@@ -60,8 +57,6 @@ class TimerRunningFragment : Fragment() {
         initButtonListeners()
 
         viewModel.timerState.observe(viewLifecycleOwner) { updateTimerState(it) }
-
-        val isResetEnabled = sharedPrefs.getIsResetEnabled()
 
         // deeplink intent received from notification click (not the actions).
         // notification actions call the service and the result gets
