@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import com.google.android.gms.location.*
 import com.mittylabs.elaps.extensions.toasty
 import com.mittylabs.elaps.model.TimerState
@@ -60,7 +59,7 @@ class WalkDetectionService : Service() {
             this,
             0,
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
-            0
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         requestActivityUpdates()

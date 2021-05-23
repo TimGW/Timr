@@ -59,13 +59,13 @@ class NotificationsImpl @Inject constructor(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.RESUME_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
         val stopPendingIntent = PendingIntent.getService(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.STOP_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = baseNotificationBuilder(
@@ -90,23 +90,21 @@ class NotificationsImpl @Inject constructor(
     }
 
     override fun updateStopState(initialTimerLength: Long, timerState: TimerState) {
-        val playPendingIntent = Intent(context, TimerService::class.java).apply {
-            action = TimerService.START_ACTION
-            putExtra(TimerService.TIMER_LENGTH_EXTRA, initialTimerLength)
-        }.let {
-            PendingIntent.getService(
-                context,
-                REQUEST_CODE,
-                it,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-        }
+        val playPendingIntent = PendingIntent.getService(
+            context,
+            REQUEST_CODE,
+            Intent(context, TimerService::class.java).apply {
+                action = TimerService.START_ACTION
+                putExtra(TimerService.TIMER_LENGTH_EXTRA, initialTimerLength)
+            },
+            PendingIntent.FLAG_IMMUTABLE
+        )
 
         val terminatePendingIntent = PendingIntent.getService(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.TERMINATE_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = baseNotificationBuilder(
@@ -135,13 +133,13 @@ class NotificationsImpl @Inject constructor(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.EXTEND_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
         val terminatePendingIntent = PendingIntent.getService(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.TERMINATE_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
 
         val notification = baseNotificationBuilder(
@@ -251,13 +249,13 @@ class NotificationsImpl @Inject constructor(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.PAUSE_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
         val extendPendingIntent = PendingIntent.getService(
             context, REQUEST_CODE,
             Intent(context, TimerService::class.java).apply {
                 action = TimerService.EXTEND_ACTION
-            }, PendingIntent.FLAG_UPDATE_CURRENT
+            }, PendingIntent.FLAG_IMMUTABLE
         )
 
         return baseNotificationBuilder(timerState, remainingTimeMillis).apply {
