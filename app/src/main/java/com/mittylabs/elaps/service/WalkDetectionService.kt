@@ -4,7 +4,8 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
-import com.google.android.gms.location.ActivityRecognitionClient
+import android.util.Log
+import com.google.android.gms.location.*
 import com.mittylabs.elaps.extensions.toasty
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.notification.Notifications
@@ -20,6 +21,26 @@ class WalkDetectionService : Service() {
 
     private lateinit var pendingIntent: PendingIntent
     private lateinit var activityRecognitionClient: ActivityRecognitionClient
+    private val request = ActivityTransitionRequest(
+        listOf<ActivityTransition>(
+            ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.WALKING)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                .build(),
+            ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.WALKING)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build(),
+            ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.STILL)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                .build(),
+            ActivityTransition.Builder()
+                .setActivityType(DetectedActivity.STILL)
+                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                .build()
+        )
+    )
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -37,12 +58,12 @@ class WalkDetectionService : Service() {
 
         pendingIntent = PendingIntent.getBroadcast(
             this,
-            1,
-            Intent(this, WalkDetectionReceiver::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT
+            0,
+            Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
+            0
         )
 
-        requestActivityUpdatesButtonHandler()
+        requestActivityUpdates()
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -53,12 +74,18 @@ class WalkDetectionService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        removeActivityUpdatesButtonHandler()
+        removeActivityUpdates()
     }
 
-    private fun requestActivityUpdatesButtonHandler() {
-        activityRecognitionClient.requestActivityUpdates(
-            DETECTION_INTERVAL_IN_MILLISECONDS,
+    private fun requestActivityUpdates() {
+        // todo this consumes more battery
+//        activityRecognitionClient.requestActivityUpdates(
+//            DETECTION_INTERVAL_IN_MILLISECONDS,
+//            pendingIntent
+//        )
+
+        activityRecognitionClient.requestActivityTransitionUpdates(
+            request,
             pendingIntent
         ).addOnSuccessListener {
             toasty("Successfully requested activity updates")
@@ -67,8 +94,8 @@ class WalkDetectionService : Service() {
         }
     }
 
-    private fun removeActivityUpdatesButtonHandler() {
-        activityRecognitionClient.removeActivityUpdates(pendingIntent)
+    private fun removeActivityUpdates() {
+        activityRecognitionClient.removeActivityTransitionUpdates(pendingIntent)
             .addOnSuccessListener {
                 toasty("Removed activity updates successfully!")
             }.addOnFailureListener {

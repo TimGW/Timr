@@ -1,5 +1,6 @@
 package com.mittylabs.elaps.extensions
 
+import android.os.SystemClock
 import java.util.concurrent.TimeUnit
 
 /**
@@ -19,3 +20,5 @@ fun Long.toHumanFormat(): String {
         )
     )
 }
+
+fun Long.toSeconds() = ((SystemClock.elapsedRealtime() - (this / 1000000)) / 1000)

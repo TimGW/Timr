@@ -50,5 +50,6 @@
     <string name="title_timer">Timer</string>
     <string name="title_timer_settings">Settings</string>
     <string name="toast_reset_timer">Timer is reset due to activity!</string>
+    <string name="toast_reset_timer_resume">Timer is resumed due to inactivity!</string>
 
 </resources>
