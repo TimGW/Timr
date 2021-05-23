@@ -4,7 +4,7 @@ import android.app.Notification
 import com.mittylabs.elaps.model.TimerState
 
 interface Notifications {
-    fun createNotification(timerLength: Long, timerState: TimerState): Notification
+    fun getOrCreateNotification(timerLength: Long, timerState: TimerState): Notification
     fun updateTimeLeft(remainingTimeMillis: Long, timerState: TimerState)
     fun updatePauseState(currentTimeRemaining: Long, timerState: TimerState)
     fun updateStopState(initialTimerLength: Long, timerState: TimerState)

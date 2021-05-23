@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.NavHostFragment
 import com.mittylabs.elaps.NavGraphDirections
@@ -67,14 +68,16 @@ class TimerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        registerReceiver(receiver, IntentFilter().apply {
-            addAction(INTENT_EXTRA_TIMER)
-        })
+
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(receiver, IntentFilter(INTENT_EXTRA_TIMER))
     }
 
     override fun onPause() {
         super.onPause()
-        unregisterReceiver(receiver)
+
+        LocalBroadcastManager.getInstance(this)
+            .unregisterReceiver(receiver)
     }
 
     override fun onStop() {
