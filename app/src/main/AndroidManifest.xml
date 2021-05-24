@@ -34,9 +34,6 @@
         <service
             android:name=".service.WalkDetectionService"
             android:exported="false" />
-        <service
-            android:name=".service.DetectedActivitiesIntentService"
-            android:exported="false" />
 
     </application>
 
