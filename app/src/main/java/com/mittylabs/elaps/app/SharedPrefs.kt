@@ -12,8 +12,6 @@ class SharedPrefs(
 
     fun getIsResetEnabled() = spm.getBoolValue(SHARED_PREF_IS_RESET)
 
-    fun getIsResetHighAccuracyEnabled() = spm.getBoolValue(SHARED_PREF_IS_RESET_HA)
-
     companion object {
         const val SHARED_PREF_DARK_MODE = "SHARED_PREF_DARK_THEME"
         const val SHARED_PREF_IS_RESET = "timer_reset_walk"

@@ -26,9 +26,7 @@
     <string name="preferences_analytics_header">Privacy</string>
     <string name="preferences_display_dark_mode">Dark mode</string>
     <string name="preferences_timer_reset_walk">Reset timer</string>
-    <string name="preferences_timer_reset_walk_ha">Improve accuracy</string>
     <string name="preferences_timer_reset_walk_description">Automatically reset a running timer to it\'s start position when you move</string>
-    <string name="preferences_timer_reset_walk_description_ha">Improve activity updates by listening at an interval. This consumes more battery</string>
     <string name="preferences_display_header">Display</string>
     <string name="preferences_timer_header">Timer</string>
     <string name="preferences_about_header">About</string>

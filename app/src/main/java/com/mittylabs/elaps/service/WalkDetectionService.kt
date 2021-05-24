@@ -20,19 +20,16 @@ class WalkDetectionService : Service() {
     @Inject
     lateinit var notifications: Notifications
 
-    @Inject
-    lateinit var sharedPrefs: SharedPrefs
-
     private lateinit var pendingIntent: PendingIntent
     private lateinit var activityRecognitionClient: ActivityRecognitionClient
     private val request = ActivityTransitionRequest(
         listOf<ActivityTransition>(
             ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.WALKING)
+                .setActivityType(DetectedActivity.ON_FOOT)
                 .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
                 .build(),
             ActivityTransition.Builder()
-                .setActivityType(DetectedActivity.WALKING)
+                .setActivityType(DetectedActivity.ON_FOOT)
                 .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
                 .build(),
             ActivityTransition.Builder()
@@ -66,12 +63,7 @@ class WalkDetectionService : Service() {
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-
-        if (sharedPrefs.getIsResetHighAccuracyEnabled()) {
-            requestHighAccuracyActivityUpdates()
-        } else {
-            requestActivityUpdates()
-        }
+        requestActivityUpdates()
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -82,11 +74,7 @@ class WalkDetectionService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        if (sharedPrefs.getIsResetHighAccuracyEnabled()) {
-            removeHighAccuracyActivityUpdates()
-        } else {
-            removeActivityUpdates()
-        }
+        removeActivityUpdates()
     }
 
     private fun requestActivityUpdates() {
@@ -107,29 +95,5 @@ class WalkDetectionService : Service() {
             }.addOnFailureListener {
                 toast("Failed to remove activity updates!")
             }
-    }
-
-    private fun requestHighAccuracyActivityUpdates() {
-        activityRecognitionClient.requestActivityUpdates(
-            DETECTION_INTERVAL_IN_MILLISECONDS,
-            pendingIntent
-        ).addOnSuccessListener {
-            toast("Successfully requested high accuracy activity updates")
-        }.addOnFailureListener {
-            toast("Requesting high accuracy activity updates failed to start")
-        }
-    }
-
-    private fun removeHighAccuracyActivityUpdates() {
-        activityRecognitionClient.removeActivityUpdates(pendingIntent)
-            .addOnSuccessListener {
-                toast("Removed high accuracy activity updates successfully!")
-            }.addOnFailureListener {
-                toast("Failed to remove high accuracy activity updates!")
-            }
-    }
-
-    companion object {
-        private const val DETECTION_INTERVAL_IN_MILLISECONDS: Long = 1000
     }
 }

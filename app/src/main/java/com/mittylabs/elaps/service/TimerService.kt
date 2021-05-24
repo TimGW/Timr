@@ -86,9 +86,6 @@ class TimerService : Service() {
                             handleTransitionResult(activityType, transitionType)
                         }
                     }
-                } else if (ActivityRecognitionResult.hasResult(intent)) {
-                    val result = ActivityRecognitionResult.extractResult(intent) ?: return
-                    handleTransitionResult(result.mostProbableActivity.type)
                 }
         }
     }
@@ -238,7 +235,7 @@ class TimerService : Service() {
 
             resumeTimer()
             toast(getString(R.string.toast_reset_timer_resume))
-        } else if (activityType == DetectedActivity.WALKING &&
+        } else if (activityType == DetectedActivity.ON_FOOT &&
             transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
         ) {
             // is timer already stopped?
