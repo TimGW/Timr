@@ -21,4 +21,4 @@ fun Long.toHumanFormat(): String {
     )
 }
 
-fun Long.toSeconds() = ((SystemClock.elapsedRealtime() - (this / 1000000)) / 1000)
+fun Long.nanoToSeconds() = ((SystemClock.elapsedRealtime() - (this / 1000000)) / 1000)

@@ -8,13 +8,14 @@ import android.content.IntentFilter
 import android.os.*
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.BuildConfig
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.extensions.toSeconds
+import com.mittylabs.elaps.extensions.nanoToSeconds
 import com.mittylabs.elaps.extensions.toast
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.notification.Notifications
@@ -41,7 +42,7 @@ class TimerService : Service() {
 
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
         const val TRANSITIONS_RECEIVER_ACTION: String =
-            BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION"
+            BuildConfig.APPLICATION_ID + ".TRANSITIONS_RECEIVER_ACTION"
     }
 
     @Inject
@@ -76,18 +77,19 @@ class TimerService : Service() {
     }
     private val userActivityReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (
-                ActivityTransitionResult.hasResult(intent) &&
-                intent.action == TRANSITIONS_RECEIVER_ACTION
-            ) {
-                ActivityTransitionResult.extractResult(intent)?.transitionEvents?.forEach {
-                    if (it.elapsedRealTimeNanos.toSeconds() <= THIRTY_SECONDS) {
-                        val activityType = it.activityType
-                        val transitionType = it.transitionType
-                        handleTransitionResult(activityType, transitionType)
+            if (intent.action == TRANSITIONS_RECEIVER_ACTION)
+                if (ActivityTransitionResult.hasResult(intent)) {
+                    ActivityTransitionResult.extractResult(intent)?.transitionEvents?.forEach {
+                        if (it.elapsedRealTimeNanos.nanoToSeconds() <= THIRTY_SECONDS) {
+                            val activityType = it.activityType
+                            val transitionType = it.transitionType
+                            handleTransitionResult(activityType, transitionType)
+                        }
                     }
+                } else if (ActivityRecognitionResult.hasResult(intent)) {
+                    val result = ActivityRecognitionResult.extractResult(intent) ?: return
+                    handleTransitionResult(result.mostProbableActivity.type)
                 }
-            }
         }
     }
 
@@ -222,7 +224,10 @@ class TimerService : Service() {
         }
     }.also { notifications.updateTimeLeft(currentTimeRemaining, timerState) }
 
-    private fun handleTransitionResult(activityType: Int, transitionType: Int) {
+    private fun handleTransitionResult(
+        activityType: Int,
+        transitionType: Int = ActivityTransition.ACTIVITY_TRANSITION_ENTER
+    ) {
         if (activityType == DetectedActivity.STILL &&
             transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
         ) {

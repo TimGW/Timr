@@ -4,7 +4,9 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import android.util.Log
 import com.google.android.gms.location.*
+import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.toast
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.notification.Notifications
@@ -17,6 +19,9 @@ class WalkDetectionService : Service() {
 
     @Inject
     lateinit var notifications: Notifications
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
 
     private lateinit var pendingIntent: PendingIntent
     private lateinit var activityRecognitionClient: ActivityRecognitionClient
@@ -59,10 +64,14 @@ class WalkDetectionService : Service() {
             this,
             0,
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        requestActivityUpdates()
+        if (sharedPrefs.getIsResetHighAccuracyEnabled()) {
+            requestHighAccuracyActivityUpdates()
+        } else {
+            requestActivityUpdates()
+        }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -73,16 +82,14 @@ class WalkDetectionService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        removeActivityUpdates()
+        if (sharedPrefs.getIsResetHighAccuracyEnabled()) {
+            removeHighAccuracyActivityUpdates()
+        } else {
+            removeActivityUpdates()
+        }
     }
 
     private fun requestActivityUpdates() {
-        // todo this consumes more battery
-//        activityRecognitionClient.requestActivityUpdates(
-//            DETECTION_INTERVAL_IN_MILLISECONDS,
-//            pendingIntent
-//        )
-
         activityRecognitionClient.requestActivityTransitionUpdates(
             request,
             pendingIntent
@@ -99,6 +106,26 @@ class WalkDetectionService : Service() {
                 toast("Removed activity updates successfully!")
             }.addOnFailureListener {
                 toast("Failed to remove activity updates!")
+            }
+    }
+
+    private fun requestHighAccuracyActivityUpdates() {
+        activityRecognitionClient.requestActivityUpdates(
+            DETECTION_INTERVAL_IN_MILLISECONDS,
+            pendingIntent
+        ).addOnSuccessListener {
+            toast("Successfully requested high accuracy activity updates")
+        }.addOnFailureListener {
+            toast("Requesting high accuracy activity updates failed to start")
+        }
+    }
+
+    private fun removeHighAccuracyActivityUpdates() {
+        activityRecognitionClient.removeActivityUpdates(pendingIntent)
+            .addOnSuccessListener {
+                toast("Removed high accuracy activity updates successfully!")
+            }.addOnFailureListener {
+                toast("Failed to remove high accuracy activity updates!")
             }
     }
 

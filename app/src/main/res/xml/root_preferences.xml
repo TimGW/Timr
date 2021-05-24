@@ -9,7 +9,14 @@
             app:key="timer_reset_walk"
             app:title="@string/preferences_timer_reset_walk"
             android:summary="@string/preferences_timer_reset_walk_description"
-            app:iconSpaceReserved="false"/>
+            app:iconSpaceReserved="false" />
+
+        <SwitchPreferenceCompat
+            app:key="timer_reset_walk_ha"
+            app:title="@string/preferences_timer_reset_walk_ha"
+            android:summary="@string/preferences_timer_reset_walk_description_ha"
+            app:iconSpaceReserved="false"
+            android:dependency="timer_reset_walk"/>
 
         <Preference
             android:key="pref1"
