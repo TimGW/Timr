@@ -1,15 +1,16 @@
 package com.mittylabs.elaps.settings
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.*
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
+import com.mittylabs.elaps.extensions.snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -47,6 +48,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun timerPrefs() {
         // todo extra timer preferecens
     }
+
     private fun displayPrefs() {
         val darkModePref = (findPreference("dark_mode_key") as? ListPreference)
 
@@ -73,21 +75,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun aboutPrefs() {
-        (findPreference("preferences_rate_app_key") as? Preference)?.setOnPreferenceClickListener {
-            val activity = activity ?: return@setOnPreferenceClickListener false
+        val rootView = activity?.findViewById<View>(android.R.id.content) ?: return
 
-            val intent = try {
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=${activity.packageName}")
-                )
-            } catch (ex: ActivityNotFoundException) {
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://play.google.com/store/apps/details?id=${activity.packageName}")
-                )
+        (findPreference("preferences_rate_app_key") as? Preference)?.setOnPreferenceClickListener {
+            val manager = ReviewManagerFactory.create(requireActivity())
+
+            manager.requestReviewFlow().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val reviewInfo = task.result
+                    val flow = manager.launchReviewFlow(requireActivity(), reviewInfo)
+                    flow.addOnCompleteListener { _ ->
+                        rootView.snackbar(message = getString(R.string.review_flow_done))
+                    }
+                } else {
+                    rootView.snackbar(message = getString(R.string.error_generic))
+                }
             }
-            startActivity(intent)
             true
         }
     }

@@ -15,7 +15,7 @@ import com.mittylabs.elaps.BuildConfig
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.toSeconds
-import com.mittylabs.elaps.extensions.toasty
+import com.mittylabs.elaps.extensions.toast
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.notification.Notifications
 import com.mittylabs.elaps.notification.NotificationsImpl.Companion.NOTIFICATION_ID
@@ -232,7 +232,7 @@ class TimerService : Service() {
             ) return
 
             resumeTimer()
-            toasty(getString(R.string.toast_reset_timer_resume))
+            toast(getString(R.string.toast_reset_timer_resume))
         } else if (activityType == DetectedActivity.WALKING &&
             transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
         ) {
@@ -240,7 +240,7 @@ class TimerService : Service() {
             if (timerState is TimerState.Stopped) return
 
             stopTimer(true)
-            toasty(getString(R.string.toast_reset_timer))
+            toast(getString(R.string.toast_reset_timer))
         }
     }
 }

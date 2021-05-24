@@ -6,6 +6,7 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.Toast
 import androidx.constraintlayout.widget.Group
+import com.google.android.material.snackbar.Snackbar
 
 fun View.blink() {
     val anim: Animation = AlphaAnimation(0.0f, 1.0f)
@@ -22,10 +23,24 @@ fun Group.setOnClickListeners(listener: View.OnClickListener?) {
     }
 }
 
-fun Context.toasty(message: String) {
+fun Context.toast(message: String) {
     Toast.makeText(
         this,
         message,
         Toast.LENGTH_SHORT
     ).show()
+}
+
+fun View.snackbar(
+    message: String = "",
+    actionMessage: String = "",
+    anchorView: View? = null,
+    length: Int = Snackbar.LENGTH_LONG,
+    action: (() -> Unit)? = null
+): Snackbar {
+    val snackbar = Snackbar.make(this, message, length)
+    if (action != null) snackbar.setAction(actionMessage) { action.invoke() }
+    if (anchorView != null) snackbar.anchorView = anchorView
+    snackbar.show()
+    return snackbar
 }
