@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.preference.ListPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.*
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
@@ -46,7 +44,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
         ?.supportActionBar?.setDisplayHomeAsUpEnabled(isVisible)
 
     private fun timerPrefs() {
-        // todo extra timer preferecens
+        (findPreference("timer_reset_walk") as? SwitchPreferenceCompat)?.onPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { _, newValue ->
+                val isResetEnabled = newValue as Boolean
+
+                if (!isResetEnabled) {
+                    (findPreference("timer_reset_walk_ha") as? SwitchPreferenceCompat)?.isChecked = false
+                }
+                true
+            }
+
     }
 
     private fun displayPrefs() {
