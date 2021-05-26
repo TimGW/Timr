@@ -1,9 +1,11 @@
 package com.mittylabs.elaps.settings
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.navigation.fragment.findNavController
 import androidx.preference.*
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.mittylabs.elaps.R
@@ -30,19 +32,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         aboutPrefs()
     }
 
-    override fun onStart() {
-        super.onStart()
-        setUpButtonVisible(true)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        setUpButtonVisible(false)
-    }
-
-    private fun setUpButtonVisible(isVisible: Boolean) = (activity as? AppCompatActivity)
-        ?.supportActionBar?.setDisplayHomeAsUpEnabled(isVisible)
-
     private fun timerPrefs() {
         (findPreference("timer_reset_walk") as? SwitchPreferenceCompat)?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
@@ -53,7 +42,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 }
                 true
             }
-
     }
 
     private fun displayPrefs() {
