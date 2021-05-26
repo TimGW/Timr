@@ -191,7 +191,7 @@ class NotificationsImpl @Inject constructor(
             val runningTimerChannel = NotificationChannel(
                 channelIdRunningTimers,
                 "Timers",
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 description = context.getString(R.string.channel_timer_running_desc)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
