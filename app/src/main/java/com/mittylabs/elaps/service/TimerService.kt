@@ -54,7 +54,7 @@ class TimerService : Service() {
     var timerState: TimerState = TimerState.Terminated
         private set
 
-    private lateinit var timer: CountDownTimer
+    private var timer: CountDownTimer? = null
     private lateinit var walkDetectionService: Intent
 
     private var initialTimerLength: Long = 0L
@@ -132,31 +132,28 @@ class TimerService : Service() {
         val notification = notifications.getOrCreateNotification(timerLength, timerState)
         startForeground(NOTIFICATION_ID, notification)
 
+        resumeTimer()
+
         if (sharedPrefs.getIsResetEnabled()) {
             walkDetectionService = Intent(this, WalkDetectionService::class.java)
             ContextCompat.startForegroundService(this, walkDetectionService)
         }
-
-        resumeTimer()
     }
 
     private fun resumeTimer() {
-        if (::timer.isInitialized) timer.cancel()
-
-        timer = createCountDownTimer(currentTimeRemaining)
-        timer.start()
+        timer?.cancel()
+        timer = createCountDownTimer(currentTimeRemaining).also { it.start() }
         broadcast(TimerState.Started(currentTimerLength, currentTimeRemaining, false))
     }
 
     private fun pauseTimer() {
-        if (::timer.isInitialized) timer.cancel()
-
+        timer?.cancel()
         broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining, true))
         notifications.updatePauseState(currentTimeRemaining, timerState)
     }
 
     private fun stopTimer(resetTime: Boolean) {
-        if (::timer.isInitialized) timer.cancel()
+        timer?.cancel()
         if (resetTime) {
             currentTimerLength = initialTimerLength
             currentTimeRemaining = initialTimerLength
@@ -167,13 +164,12 @@ class TimerService : Service() {
     }
 
     private fun terminateTimer() {
-        if (::timer.isInitialized) timer.cancel()
-
-        notifications.removeNotifications()
-        broadcast(TimerState.Terminated)
-        stopSelf()
+        timer?.cancel()
 
         if (sharedPrefs.getIsResetEnabled()) stopService(walkDetectionService)
+        broadcast(TimerState.Terminated)
+        notifications.removeNotifications()
+        stopSelf()
     }
 
     private fun extendTimer() {
