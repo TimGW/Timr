@@ -21,4 +21,8 @@ class ElapsApp : Application() {
         }
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
+
+    companion object {
+        const val TAG = "ElapsApp"
+    }
 }
