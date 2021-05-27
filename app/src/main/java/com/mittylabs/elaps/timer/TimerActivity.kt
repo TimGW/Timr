@@ -1,8 +1,10 @@
 package com.mittylabs.elaps.timer
 
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -12,7 +14,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.mittylabs.elaps.NavGraphDirections
 import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.ElapsApp.Companion.TAG
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.model.TimerState
@@ -57,12 +58,6 @@ class TimerActivity : AppCompatActivity() {
             getNavController(),
             AppBarConfiguration.Builder(R.id.timerSetupFragment, R.id.timerRunningFragment).build()
         )
-
-
-        // todo animated drawable for splashscreen api Android S
-//        val drawable= ContextCompat.getDrawable(this, R.drawable.ic_timer_animated) as Animatable
-//        drawable.stop()
-//        drawable.start()
     }
 
     override fun onResume() {
@@ -89,7 +84,7 @@ class TimerActivity : AppCompatActivity() {
 
         if (currentFragment == R.id.timerRunningFragment && !isTimerActive) {
             getNavController().navigate(NavGraphDirections.actionGlobalTimerSetupFragment())
-        } else if(currentFragment == R.id.timerSetupFragment && isTimerActive) {
+        } else if (currentFragment == R.id.timerSetupFragment && isTimerActive) {
             viewModel.updateTimerState(TimerService.timerState)
             getNavController().navigate(NavGraphDirections.actionGlobalTimerRunningFragment())
         }
@@ -106,5 +101,9 @@ class TimerActivity : AppCompatActivity() {
 
     companion object {
         const val INTENT_EXTRA_TIMER = "INTENT_EXTRA_TIMER"
+
+        fun intentBuilder(context: Context): Intent {
+            return Intent(context, TimerActivity::class.java)
+        }
     }
 }

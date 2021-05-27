@@ -17,8 +17,13 @@
         android:supportsRtl="true"
         android:theme="@style/MyTheme.DayNight">
 
-        <activity android:name=".timer.TimerActivity"
-            android:launchMode="singleTop"
+        <activity
+            android:name=".timer.TimerActivity"
+            android:exported="false"
+            android:launchMode="singleTop" />
+
+        <activity
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

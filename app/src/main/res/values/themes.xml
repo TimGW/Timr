@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="MyTheme.NoActionBar.Launcher">
-        <item name="android:windowBackground">@drawable/ic_launcher_background</item>
+        <item name="android:windowBackground">@drawable/launcher_background</item>
     </style>
 
     <style name="MyTheme.NoActionBar" parent="MyTheme.DayNight">

@@ -6,7 +6,7 @@ import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
@@ -79,7 +79,7 @@ class TimerSetupFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
-                findNavController().navigate(TimerSetupFragmentDirections.showAppSettings())
+                view?.findNavController()?.navigate(TimerSetupFragmentDirections.showAppSettings())
                 true
             }
             else -> super.onOptionsItemSelected(item)
