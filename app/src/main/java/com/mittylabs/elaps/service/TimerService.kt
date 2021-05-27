@@ -227,8 +227,8 @@ class TimerService : Service() {
 
             resumeTimer()
             toast(getString(R.string.toast_reset_timer_resume))
-        } else if (activityType == DetectedActivity.WALKING &&
-            transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
+        } else if (activityType == DetectedActivity.STILL &&
+            transitionType == ActivityTransition.ACTIVITY_TRANSITION_EXIT
         ) {
             // is timer already stopped?
             if (timerState is TimerState.Stopped) return
