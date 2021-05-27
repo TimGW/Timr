@@ -11,23 +11,6 @@
             android:summary="@string/preferences_timer_reset_walk_description"
             app:iconSpaceReserved="false" />
 
-        <Preference
-            android:key="pref1"
-            android:title="Timer sound"
-            android:summary="-display current sound-"
-            app:iconSpaceReserved="false" />
-
-        <Preference
-            android:key="pref2"
-            android:title="Increse volume graduatly"
-            android:summary="-never-"
-            app:iconSpaceReserved="false" />
-
-        <SwitchPreferenceCompat
-            android:key="pref3"
-            android:title="Vibrate for timer"
-            app:iconSpaceReserved="false" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
