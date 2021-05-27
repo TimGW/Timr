@@ -6,14 +6,15 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.*
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.BuildConfig
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.app.ElapsApp
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.nanoToSeconds
 import com.mittylabs.elaps.extensions.toast
@@ -43,41 +44,36 @@ class TimerService : Service() {
         const val TIMER_LENGTH_EXTRA = "timerLengthMilliseconds"
         const val TRANSITIONS_RECEIVER_ACTION: String =
             BuildConfig.APPLICATION_ID + ".TRANSITIONS_RECEIVER_ACTION"
+
+        var timerState: TimerState = TimerState.Terminated
+            private set
     }
 
-    @Inject
-    lateinit var notifications: Notifications
-
-    @Inject
-    lateinit var sharedPrefs: SharedPrefs
-
-    var timerState: TimerState = TimerState.Terminated
-        private set
-
-    private var timer: CountDownTimer? = null
+    @Inject lateinit var notifications: Notifications
+    @Inject lateinit var sharedPrefs: SharedPrefs
     private lateinit var walkDetectionService: Intent
 
+    private var timer: CountDownTimer? = null
     private var initialTimerLength: Long = 0L
     private var currentTimerLength: Long = 0L
     private var currentTimeRemaining: Long = 0L
     private var elapsedFinishedTime = 0L
 
     private val handler: Handler = Handler(Looper.getMainLooper())
-    private val binder = LocalBinder()
     private val finishedRunnable: Runnable = object : Runnable {
         override fun run() {
             try {
                 elapsedFinishedTime -= ONE_SECOND
-                broadcast(TimerState.Finished(true, elapsedFinishedTime))
+                broadcastState(TimerState.Finished(elapsedFinishedTime))
                 notifications.updateFinishedState(elapsedFinishedTime, timerState)
             } finally {
                 handler.postDelayed(this, ONE_SECOND)
             }
         }
     }
-    private val userActivityReceiver = object : BroadcastReceiver() {
+    private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == TRANSITIONS_RECEIVER_ACTION)
+            if (intent.action == TRANSITIONS_RECEIVER_ACTION) {
                 if (ActivityTransitionResult.hasResult(intent)) {
                     ActivityTransitionResult.extractResult(intent)?.transitionEvents?.forEach {
                         if (it.elapsedRealTimeNanos.nanoToSeconds() <= THIRTY_SECONDS) {
@@ -87,23 +83,25 @@ class TimerService : Service() {
                         }
                     }
                 }
+            }
         }
     }
 
-    inner class LocalBinder : Binder() {
-        fun getService(): TimerService = this@TimerService
-    }
-
-    override fun onBind(intent: Intent): IBinder = binder
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
 
+        Log.d(ElapsApp.TAG, "service, onCreate")
+
         // don't use LocalBroadcastManager otherwise the intent's won't be received
-        registerReceiver(userActivityReceiver, IntentFilter(TRANSITIONS_RECEIVER_ACTION))
+        registerReceiver(receiver, IntentFilter().apply {
+            addAction(TRANSITIONS_RECEIVER_ACTION)
+        })
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        super.onStartCommand(intent, flags, startId)
         if (intent != null) {
             handler.removeCallbacks(finishedRunnable)
 
@@ -115,13 +113,15 @@ class TimerService : Service() {
                 TERMINATE_ACTION -> terminateTimer()
                 EXTEND_ACTION -> extendTimer()
             }
+            Log.d(ElapsApp.TAG, "service, onStartCommand: ${intent.action}")
         }
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(userActivityReceiver)
+        unregisterReceiver(receiver)
+        Log.d(ElapsApp.TAG, "service, onDestroy")
     }
 
     private fun startTimer(timerLength: Long) {
@@ -134,7 +134,7 @@ class TimerService : Service() {
 
         resumeTimer()
 
-        if (sharedPrefs.getIsResetEnabled()) {
+        if (sharedPrefs.isResetEnabled()) {
             walkDetectionService = Intent(this, WalkDetectionService::class.java)
             ContextCompat.startForegroundService(this, walkDetectionService)
         }
@@ -143,12 +143,12 @@ class TimerService : Service() {
     private fun resumeTimer() {
         timer?.cancel()
         timer = createCountDownTimer(currentTimeRemaining).also { it.start() }
-        broadcast(TimerState.Started(currentTimerLength, currentTimeRemaining, false))
+        broadcastState(TimerState.Started(currentTimerLength, currentTimeRemaining))
     }
 
     private fun pauseTimer() {
         timer?.cancel()
-        broadcast(TimerState.Paused(currentTimerLength, currentTimeRemaining, true))
+        broadcastState(TimerState.Paused(currentTimerLength, currentTimeRemaining))
         notifications.updatePauseState(currentTimeRemaining, timerState)
     }
 
@@ -159,15 +159,15 @@ class TimerService : Service() {
             currentTimeRemaining = initialTimerLength
         }
 
-        broadcast(TimerState.Stopped(currentTimerLength, true))
+        broadcastState(TimerState.Stopped(currentTimerLength))
         notifications.updateStopState(currentTimerLength, timerState)
     }
 
     private fun terminateTimer() {
         timer?.cancel()
 
-        if (sharedPrefs.getIsResetEnabled()) stopService(walkDetectionService)
-        broadcast(TimerState.Terminated)
+        if (sharedPrefs.isResetEnabled()) stopService(walkDetectionService)
+        broadcastState(TimerState.Terminated)
         notifications.removeNotifications()
         stopSelf()
     }
@@ -178,15 +178,14 @@ class TimerService : Service() {
 
         when (timerState) {
             is TimerState.Started,
-            is TimerState.Finished,
-            is TimerState.Progress -> resumeTimer()
+            is TimerState.Finished -> resumeTimer()
             is TimerState.Paused -> pauseTimer()
             is TimerState.Stopped -> stopTimer(false)
             TimerState.Terminated -> terminateTimer()
         }
     }
 
-    private fun broadcast(state: TimerState) {
+    private fun broadcastState(state: TimerState) {
         timerState = state
         LocalBroadcastManager.getInstance(this)
             .sendBroadcast(Intent(INTENT_EXTRA_TIMER).apply {
@@ -207,7 +206,7 @@ class TimerService : Service() {
             notificationUpdateThreshold += currentTimeRemaining - millisUntilFinished
             currentTimeRemaining = millisUntilFinished
 
-            broadcast(TimerState.Progress(currentTimerLength, millisUntilFinished, false))
+            broadcastState(TimerState.Started(currentTimerLength, millisUntilFinished))
 
             // required for smooth progress bar but prevent spamming of notifications
             if (notificationUpdateThreshold >= ONE_SECOND) {
@@ -224,10 +223,7 @@ class TimerService : Service() {
         if (activityType == DetectedActivity.STILL &&
             transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER
         ) {
-            // is timer already running?
-            if (timerState is TimerState.Progress ||
-                timerState is TimerState.Started
-            ) return
+            if (timerState is TimerState.Started) return // timer already running
 
             resumeTimer()
             toast(getString(R.string.toast_reset_timer_resume))

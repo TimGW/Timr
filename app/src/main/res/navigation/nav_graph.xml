@@ -8,50 +8,39 @@
     <fragment
         android:id="@+id/timerSetupFragment"
         android:name="com.mittylabs.elaps.timer.TimerSetupFragment"
-        android:label="fragment_timer_settings"
+        android:label="@string/title_timer"
         tools:layout="@layout/fragment_timer_settings">
-        <action
-            android:id="@+id/show_timer"
-            app:destination="@id/timerRunningFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out" />
         <action
             android:id="@+id/show_app_settings"
             app:destination="@id/settingsFragment"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out"
             app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/fade_out" />
+            app:popExitAnim="@anim/fade_out"
+            app:popUpTo="@id/timerSetupFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/settingsFragment"
-        android:name="com.mittylabs.elaps.settings.SettingsFragment"
-        android:label="SettingsFragment" />
 
     <fragment
         android:id="@+id/timerRunningFragment"
         android:name="com.mittylabs.elaps.timer.TimerRunningFragment"
-        android:label="TimerRunningFragment"
-        tools:layout="@layout/fragment_timer_running">
-        <action
-            android:id="@+id/show_setup"
-            app:destination="@id/timerSetupFragment"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/fade_out"
-            app:popUpTo="@+id/nav_graph"
-            app:popUpToInclusive="true"/>
-    </fragment>
+        android:label="@string/title_timer"
+        tools:layout="@layout/fragment_timer_running" />
 
-    <!-- Global actions when started from onServiceConnected callback -->
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.mittylabs.elaps.settings.SettingsFragment"
+        android:label="@string/title_settings" />
+
+    <!-- Global actions -->
     <action
         android:id="@+id/action_global_timerRunningFragment"
-        app:destination="@id/timerRunningFragment" />
+        app:destination="@id/timerRunningFragment"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out" />
 
     <action
         android:id="@+id/action_global_timerSetupFragment"
-        app:destination="@id/timerSetupFragment" />
-
+        app:destination="@id/timerSetupFragment"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out" />
 </navigation>

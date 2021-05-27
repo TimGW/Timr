@@ -3,21 +3,23 @@ package com.mittylabs.elaps.timer
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
 import com.mittylabs.elaps.extensions.setOnClickListeners
-import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class TimerSetupFragment : Fragment() {
-    private val viewModel: TimerViewModel by activityViewModels()
+    @Inject lateinit var sharedPrefs: SharedPrefs
     private lateinit var binding: FragmentTimerSettingsBinding
     private lateinit var sliderLayoutManager: SliderLayoutManager
     private var scrollPosition: Int = MINUTES_30 - 1
@@ -25,6 +27,13 @@ class TimerSetupFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        activity?.onBackPressedDispatcher?.addCallback(this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    activity?.finish()
+                }
+            })
     }
 
     override fun onCreateView(
@@ -48,12 +57,8 @@ class TimerSetupFragment : Fragment() {
         updateSelection(scrollPosition)
 
         binding.timerStartButton.setOnClickListener { v ->
-            if (viewModel.timerState.value is TimerState.Progress) return@setOnClickListener
 
-            v.findNavController().navigate(TimerSetupFragmentDirections.showTimer())
-
-            ContextCompat.startForegroundService(
-                requireActivity(),
+            ContextCompat.startForegroundService(requireActivity(),
                 Intent(requireActivity(), TimerService::class.java).apply {
                     action = TimerService.START_ACTION
                     putExtra(TimerService.TIMER_LENGTH_EXTRA, getTime())
@@ -73,10 +78,6 @@ class TimerSetupFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            android.R.id.home -> {
-                activity?.onBackPressed()
-                true
-            }
             R.id.action_settings -> {
                 findNavController().navigate(TimerSetupFragmentDirections.showAppSettings())
                 true

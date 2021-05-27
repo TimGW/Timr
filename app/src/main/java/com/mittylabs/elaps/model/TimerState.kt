@@ -4,40 +4,45 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class TimerState : Parcelable {
+    abstract val isPlayIconVisible: Boolean
 
     @Parcelize
     data class Started(
-        val currentTimerLength: Long,
-        val currentTimeRemaining: Long,
-        val isPlayIconVisible: Boolean
-    ) : TimerState()
-
-    @Parcelize
-    data class Progress(
-        val currentTimerLength: Long,
-        val currentTimeRemaining: Long,
-        val isPlayIconVisible: Boolean
-    ) : TimerState()
+        val timerLength: Long,
+        val timerRemaining: Long,
+    ) : TimerState() {
+        override val isPlayIconVisible: Boolean
+            get() = false
+    }
 
     @Parcelize
     data class Paused(
-        val currentTimerLength: Long,
-        val currentTimeRemaining: Long,
-        val isPlayIconVisible: Boolean
-    ) : TimerState()
+        val timerLength: Long,
+        val timerRemaining: Long,
+    ) : TimerState() {
+        override val isPlayIconVisible: Boolean
+            get() = true
+    }
 
     @Parcelize
     data class Stopped(
-        val initialTimerLength: Long,
-        val isPlayIconVisible: Boolean
-    ) : TimerState()
+        val timerLength: Long,
+    ) : TimerState() {
+        override val isPlayIconVisible: Boolean
+            get() = true
+    }
 
     @Parcelize
     data class Finished(
-        val isPlayIconVisible: Boolean,
-        val elapsedTime: Long
-    ) : TimerState()
+        val elapsedTime: Long,
+    ) : TimerState() {
+        override val isPlayIconVisible: Boolean
+            get() = true
+    }
 
     @Parcelize
-    object Terminated : TimerState()
+    object Terminated : TimerState() {
+        override val isPlayIconVisible: Boolean
+            get() = true
+    }
 }

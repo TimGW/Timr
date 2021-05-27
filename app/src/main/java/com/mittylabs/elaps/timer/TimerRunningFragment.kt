@@ -8,28 +8,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
 import com.mittylabs.elaps.extensions.blink
-import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
-import com.mittylabs.elaps.model.TimerState.*
 import com.mittylabs.elaps.extensions.toHumanFormat
 import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.elaps.model.TimerState.*
 import com.mittylabs.elaps.service.TimerService
+import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class TimerRunningFragment : Fragment() {
-
+    @Inject lateinit var sharedPrefs: SharedPrefs
     private val viewModel: TimerViewModel by activityViewModels()
-
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: FragmentTimerRunningBinding
 
@@ -62,7 +59,7 @@ class TimerRunningFragment : Fragment() {
         // notification actions call the service and the result gets
         // broadcasted and updated via the shared viewmodel
         if (arguments?.isEmpty == false) {
-            updateTimerState(arguments?.getParcelable(INTENT_EXTRA_TIMER))
+            arguments?.getParcelable<TimerState?>(INTENT_EXTRA_TIMER)?.let { updateTimerState(it) }
         }
     }
 
@@ -74,7 +71,6 @@ class TimerRunningFragment : Fragment() {
         binding.timerResetButton.setOnClickListener { stop() }
         binding.timerExtendButton.setOnClickListener { extend() }
         binding.timerTerminateButton.setOnClickListener { v ->
-            v.findNavController().navigate(TimerRunningFragmentDirections.showSetup())
             terminate()
         }
     }
@@ -83,31 +79,22 @@ class TimerRunningFragment : Fragment() {
      * updateTimerState.Progress will be called every 50MS to provide a smooth progress experience,
      * so keep the function as light as possible
      */
-    private fun updateTimerState(timerState: TimerState?) {
-        when (timerState) {
-            is Started -> {
-                binding.timerTextView.clearAnimation()
-                updateToggleState(timerState.isPlayIconVisible)
-            }
-            is Progress -> {
-                updateProgress(timerState.currentTimerLength, timerState.currentTimeRemaining)
-                updateToggleState(timerState.isPlayIconVisible)
-            }
+    private fun updateTimerState(state: TimerState) {
+        if (binding.timerTextView.animation != null) binding.timerTextView.clearAnimation()
+        updateToggleState(state.isPlayIconVisible)
+
+        when (state) {
+            is Started -> updateProgress(state.timerLength, state.timerRemaining)
+            is Stopped -> updateProgress(state.timerLength, state.timerLength)
             is Paused -> {
-                updateProgress(timerState.currentTimerLength, timerState.currentTimeRemaining)
-                updateToggleState(timerState.isPlayIconVisible)
+                updateProgress(state.timerLength, state.timerRemaining)
                 binding.timerTextView.blink()
             }
-            is Stopped -> {
-                binding.timerTextView.clearAnimation()
-                updateProgress(timerState.initialTimerLength, timerState.initialTimerLength)
-                updateToggleState(timerState.isPlayIconVisible)
-            }
             is Finished -> {
-                binding.timerTextView.text = timerState.elapsedTime.toHumanFormat()
-                updateToggleState(timerState.isPlayIconVisible)
+                binding.timerTextView.text = state.elapsedTime.toHumanFormat()
+                binding.timerTextView.blink()
             }
-            is Terminated, null -> { /** do nothing **/ }
+            is Terminated -> { /** do nothing **/ }
         }
     }
 
@@ -138,12 +125,12 @@ class TimerRunningFragment : Fragment() {
     }
 
     private fun resume() {
-        if (viewModel.timerState.value is Progress) return
+        if (viewModel.timerState.value is Started) return
         startTimerService(TimerService.RESUME_ACTION)
     }
 
     private fun pause() {
-        if (viewModel.timerState.value !is Progress) return
+        if (viewModel.timerState.value !is Started) return
         startTimerService(TimerService.PAUSE_ACTION)
     }
 

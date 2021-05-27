@@ -1,65 +1,63 @@
 package com.mittylabs.elaps.timer
 
 import android.content.*
-import android.graphics.drawable.Animatable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.os.IBinder
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import androidx.navigation.NavDirections
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import com.mittylabs.elaps.NavGraphDirections
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.app.ElapsApp.Companion.TAG
+import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.ActivityTimerBinding
 import com.mittylabs.elaps.model.TimerState
 import com.mittylabs.elaps.service.TimerService
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class TimerActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
+
     private lateinit var binding: ActivityTimerBinding
     private val viewModel by viewModels<TimerViewModel>()
+    private var navController: NavController? = null
+    private lateinit var manager: LocalBroadcastManager
 
-    // state received from service broadcasts when app is in foreground
+    // state updates received from service broadcasts when app is in foreground
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.action == INTENT_EXTRA_TIMER) {
-                viewModel.updateTimerState(
-                    intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState
-                )
+                val state = intent.getParcelableExtra(INTENT_EXTRA_TIMER) as? TimerState
+
+                state?.let { viewModel.updateTimerState(it) }
+                navigate()
             }
         }
-    }
-
-    // Defines callbacks for service binding when app is killed
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, iBinder: IBinder) {
-            val service = (iBinder as TimerService.LocalBinder).getService()
-
-            // timer is just starting, let fragment handle the navigation
-            if (service.timerState is TimerState.Started) return
-
-            // service is resumed, open the correct fragment
-            if (service.timerState !is TimerState.Terminated) {
-                viewModel.updateTimerState(service.timerState)
-                navigateTo(NavGraphDirections.actionGlobalTimerRunningFragment())
-            } else {
-                navigateTo(NavGraphDirections.actionGlobalTimerSetupFragment())
-            }
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimerBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
+        setContentView(binding.root)
         setSupportActionBar(binding.appbar.toolbar)
+
+        manager = LocalBroadcastManager.getInstance(this)
+
+        NavigationUI.setupActionBarWithNavController(
+            this,
+            getNavController(),
+            AppBarConfiguration.Builder(R.id.timerSetupFragment, R.id.timerRunningFragment).build()
+        )
+
 
         // todo animated drawable for splashscreen api Android S
 //        val drawable= ContextCompat.getDrawable(this, R.drawable.ic_timer_animated) as Animatable
@@ -67,41 +65,43 @@ class TimerActivity : AppCompatActivity() {
 //        drawable.start()
     }
 
-    override fun onStart() {
-        super.onStart()
-        Intent(this, TimerService::class.java).also { intent ->
-            bindService(intent, connection, 0) // don't auto create
-        }
-    }
-
     override fun onResume() {
         super.onResume()
 
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(receiver, IntentFilter(INTENT_EXTRA_TIMER))
+        manager.registerReceiver(receiver, IntentFilter(INTENT_EXTRA_TIMER))
+
+        navigate()
     }
 
     override fun onPause() {
         super.onPause()
 
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(receiver)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        unbindService(connection)
+        manager.unregisterReceiver(receiver)
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+        return getNavController().navigateUp() || super.onSupportNavigateUp()
     }
 
-    private fun navigateTo(action: NavDirections) {
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-        val navController = (navHostFragment as NavHostFragment).navController
-        navController.navigate(action)
+    private fun navigate() {
+        val isTimerActive = TimerService.timerState != TimerState.Terminated
+        val currentFragment = getNavController().currentDestination?.id
+
+        if (currentFragment == R.id.timerRunningFragment && !isTimerActive) {
+            getNavController().navigate(NavGraphDirections.actionGlobalTimerSetupFragment())
+        } else if(currentFragment == R.id.timerSetupFragment && isTimerActive) {
+            viewModel.updateTimerState(TimerService.timerState)
+            getNavController().navigate(NavGraphDirections.actionGlobalTimerRunningFragment())
+        }
+    }
+
+    private fun getNavController(): NavController {
+        return if (navController == null) {
+            val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+            (navHostFragment as NavHostFragment).navController
+        } else {
+            navController as NavController
+        }
     }
 
     companion object {
