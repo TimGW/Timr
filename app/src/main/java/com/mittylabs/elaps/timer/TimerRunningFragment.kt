@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
 import com.mittylabs.elaps.extensions.blink
@@ -25,7 +26,8 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TimerRunningFragment : Fragment() {
-    @Inject lateinit var sharedPrefs: SharedPrefs
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
     private val viewModel: TimerViewModel by activityViewModels()
     private lateinit var onCheckedChangeListener: CompoundButton.OnCheckedChangeListener
     private lateinit var binding: FragmentTimerRunningBinding
@@ -35,8 +37,10 @@ class TimerRunningFragment : Fragment() {
 
         activity?.onBackPressedDispatcher?.addCallback(this,
             object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() { activity?.finish() }
-        })
+                override fun handleOnBackPressed() {
+                    activity?.finish()
+                }
+            })
     }
 
     override fun onCreateView(
@@ -64,7 +68,12 @@ class TimerRunningFragment : Fragment() {
     }
 
     private fun initButtonListeners() {
-        onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { _, isPaused ->
+        onCheckedChangeListener = CompoundButton.OnCheckedChangeListener { view, isPaused ->
+            if (view.background.constantState == ContextCompat
+                    .getDrawable(requireContext(), R.drawable.ic_stop_circle)?.constantState
+            ) {
+                stop(); return@OnCheckedChangeListener
+            }
             if (isPaused) pause() else resume()
         }
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
@@ -80,7 +89,7 @@ class TimerRunningFragment : Fragment() {
      * so keep the function as light as possible
      */
     private fun updateTimerState(state: TimerState) {
-        if (binding.timerTextView.animation != null) binding.timerTextView.clearAnimation()
+        clearTimerAnimations()
         updateToggleState(state.isPlayIconVisible)
 
         when (state) {
@@ -91,11 +100,20 @@ class TimerRunningFragment : Fragment() {
                 binding.timerTextView.blink()
             }
             is Finished -> {
+                binding.timerStartPauseToggleButton.background =
+                    ContextCompat.getDrawable(requireContext(), R.drawable.ic_stop_circle)
                 binding.timerTextView.text = state.elapsedTime.toHumanFormat()
-                binding.timerTextView.blink()
+                binding.timerProgressBar.blink()
             }
-            is Terminated -> { /** do nothing **/ }
+            is Terminated -> {
+                /** do nothing **/
+            }
         }
+    }
+
+    private fun clearTimerAnimations() {
+        if (binding.timerTextView.animation != null) binding.timerTextView.clearAnimation()
+        if (binding.timerProgressBar.animation != null) binding.timerProgressBar.clearAnimation()
     }
 
     /**
@@ -107,6 +125,8 @@ class TimerRunningFragment : Fragment() {
      */
     private fun updateToggleState(isPlayIconVisible: Boolean) {
         if (binding.timerStartPauseToggleButton.isChecked == isPlayIconVisible) return
+        binding.timerStartPauseToggleButton.background =
+            ContextCompat.getDrawable(requireContext(), R.drawable.play_pause_toggle)
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(null)
         binding.timerStartPauseToggleButton.isChecked = isPlayIconVisible
         binding.timerStartPauseToggleButton.setOnCheckedChangeListener(onCheckedChangeListener)
