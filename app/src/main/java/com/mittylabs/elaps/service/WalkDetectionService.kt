@@ -3,6 +3,7 @@ package com.mittylabs.elaps.service
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.location.*
@@ -50,11 +51,15 @@ class WalkDetectionService : Service() {
 
         activityRecognitionClient = ActivityRecognitionClient(this)
 
+        val piFlag = if (Build.VERSION.CODENAME == "S" ||
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+
         pendingIntent = PendingIntent.getBroadcast(
             this,
             0,
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
-            PendingIntent.FLAG_IMMUTABLE
+            piFlag // needs to be mutable
         )
         requestActivityUpdates()
     }

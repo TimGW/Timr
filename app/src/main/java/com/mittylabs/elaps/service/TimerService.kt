@@ -5,8 +5,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.*
-import android.util.Log
+import android.os.CountDownTimer
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.ActivityTransition
@@ -14,7 +16,6 @@ import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.BuildConfig
 import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.ElapsApp
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.nanoToSeconds
 import com.mittylabs.elaps.extensions.toast
@@ -49,8 +50,11 @@ class TimerService : Service() {
             private set
     }
 
-    @Inject lateinit var notifications: Notifications
-    @Inject lateinit var sharedPrefs: SharedPrefs
+    @Inject
+    lateinit var notifications: Notifications
+
+    @Inject
+    lateinit var sharedPrefs: SharedPrefs
     private lateinit var walkDetectionService: Intent
 
     private var timer: CountDownTimer? = null
@@ -71,16 +75,17 @@ class TimerService : Service() {
             }
         }
     }
+
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            if (intent.action == TRANSITIONS_RECEIVER_ACTION) {
-                if (ActivityTransitionResult.hasResult(intent)) {
-                    ActivityTransitionResult.extractResult(intent)?.transitionEvents?.forEach {
-                        if (it.elapsedRealTimeNanos.nanoToSeconds() <= THIRTY_SECONDS) {
-                            val activityType = it.activityType
-                            val transitionType = it.transitionType
-                            handleTransitionResult(activityType, transitionType)
-                        }
+            if (intent.action == TRANSITIONS_RECEIVER_ACTION &&
+                ActivityTransitionResult.hasResult(intent)
+            ) {
+                ActivityTransitionResult.extractResult(intent)?.transitionEvents?.forEach {
+                    if (it.elapsedRealTimeNanos.nanoToSeconds() <= THIRTY_SECONDS) {
+                        val activityType = it.activityType
+                        val transitionType = it.transitionType
+                        handleTransitionResult(activityType, transitionType)
                     }
                 }
             }
@@ -92,8 +97,6 @@ class TimerService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        Log.d(ElapsApp.TAG, "service, onCreate")
-
         // don't use LocalBroadcastManager otherwise the intent's won't be received
         registerReceiver(receiver, IntentFilter().apply {
             addAction(TRANSITIONS_RECEIVER_ACTION)
@@ -101,7 +104,6 @@ class TimerService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        super.onStartCommand(intent, flags, startId)
         if (intent != null) {
             handler.removeCallbacks(finishedRunnable)
 
@@ -113,7 +115,6 @@ class TimerService : Service() {
                 TERMINATE_ACTION -> terminateTimer()
                 EXTEND_ACTION -> extendTimer()
             }
-            Log.d(ElapsApp.TAG, "service, onStartCommand: ${intent.action}")
         }
         return START_NOT_STICKY
     }
@@ -121,7 +122,6 @@ class TimerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(receiver)
-        Log.d(ElapsApp.TAG, "service, onDestroy")
     }
 
     private fun startTimer(timerLength: Long) {
