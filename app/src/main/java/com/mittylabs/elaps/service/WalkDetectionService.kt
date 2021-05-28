@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import com.google.android.gms.location.*
+import com.mittylabs.elaps.R
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.toast
 import com.mittylabs.elaps.model.TimerState
@@ -53,7 +54,7 @@ class WalkDetectionService : Service() {
             this,
             0,
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE
         )
         requestActivityUpdates()
     }
@@ -74,18 +75,18 @@ class WalkDetectionService : Service() {
             request,
             pendingIntent
         ).addOnSuccessListener {
-            toast("Successfully requested activity updates")
+            toast(getString(R.string.service_walk_detection_register_success))
         }.addOnFailureListener {
-            toast("Requesting activity updates failed to start")
+            toast(getString(R.string.service_walk_detection_register_fail))
         }
     }
 
     private fun removeActivityUpdates() {
         activityRecognitionClient.removeActivityTransitionUpdates(pendingIntent)
             .addOnSuccessListener {
-                toast("Removed activity updates successfully!")
+                toast(getString(R.string.service_walk_detection_unregister_success))
             }.addOnFailureListener {
-                toast("Failed to remove activity updates!")
+                toast(getString(R.string.service_walk_detection_unregister_fail))
             }
     }
 }

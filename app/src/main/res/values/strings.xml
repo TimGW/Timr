@@ -55,5 +55,13 @@
     <string name="error_connection">Please check your internet connection</string>
     <string name="error_generic">Something went wrong</string>
     <string name="review_flow_done">Thank you for letting us know what you think!</string>
+    <string name="permission_declined_text">The app needs this permission for auto-reset. Please allow to make use of this feature.</string>
+    <string name="snackbar_open_settings">Open\nsettings</string>
+    <string name="permission_allow">allow</string>
+    <string name="permission_deny">no thanks</string>
+    <string name="service_walk_detection_register_success">Successfully requested activity updates</string>
+    <string name="service_walk_detection_register_fail">Requesting activity updates failed to start</string>
+    <string name="service_walk_detection_unregister_success">Removed activity updates successfully!</string>
+    <string name="service_walk_detection_unregister_fail">Failed to remove activity updates!</string>
 
 </resources>
