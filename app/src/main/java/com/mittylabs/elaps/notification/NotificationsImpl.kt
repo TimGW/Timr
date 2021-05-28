@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -228,7 +229,8 @@ class NotificationsImpl @Inject constructor(
             .setArguments(Bundle().apply {
                 putParcelable(INTENT_EXTRA_TIMER, timerState)
             })
-            .createPendingIntent()
+            .createTaskStackBuilder()
+            .getPendingIntent(0, FLAG_IMMUTABLE)
 
         return NotificationCompat.Builder(context, timerChannel).apply {
             setSmallIcon(R.drawable.ic_timer)
