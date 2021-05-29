@@ -1,5 +1,10 @@
 package com.mittylabs.timr.app
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+
 class SharedPrefs(
     private val spm: SharedPrefManager
 ) {
@@ -10,7 +15,10 @@ class SharedPrefs(
 
     fun getDarkModeSetting() = spm.getIntValue(SHARED_PREF_DARK_MODE)
 
-    fun isResetEnabled() = spm.getBoolValue(SHARED_PREF_IS_RESET)
+    fun isResetEnabled(context: Context) = spm.getBoolValue(SHARED_PREF_IS_RESET) &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.ACTIVITY_RECOGNITION) ==
+            PackageManager.PERMISSION_GRANTED
+
 
     companion object {
         const val SHARED_PREF_DARK_MODE = "SHARED_PREF_DARK_THEME"

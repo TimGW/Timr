@@ -70,9 +70,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun timerPrefs() {
+        if (timerResetPref?.isChecked == true) timerResetPref?.isChecked = isPermissionGranted()
+
         timerResetPref?.onPreferenceChangeListener =
             Preference.OnPreferenceChangeListener { _, newValue ->
-                askPermission(newValue as Boolean)
+                val isChecked = newValue as Boolean
+                if (isChecked) askPermission() else true
             }
     }
 
@@ -118,12 +121,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun askPermission(isResetEnabled: Boolean): Boolean {
+    private fun askPermission(): Boolean {
         when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                permission.ACTIVITY_RECOGNITION
-            ) == PackageManager.PERMISSION_GRANTED -> return true
+            isPermissionGranted() -> return true
             shouldShowRequestPermissionRationale(permission.ACTIVITY_RECOGNITION) -> {
                 AlertDialog.Builder(requireContext())
                     .setMessage(R.string.permission_declined_text)
@@ -139,6 +139,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
             else -> requestPermissionLauncher.launch(permission.ACTIVITY_RECOGNITION)
         }
-        return !isResetEnabled
+        return false
+    }
+
+    private fun isPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }

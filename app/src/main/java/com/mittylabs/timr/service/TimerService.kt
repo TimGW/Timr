@@ -134,7 +134,7 @@ class TimerService : Service() {
 
         resumeTimer()
 
-        if (sharedPrefs.isResetEnabled()) {
+        if (sharedPrefs.isResetEnabled(this)) {
             walkDetectionService = Intent(this, WalkDetectionService::class.java)
             ContextCompat.startForegroundService(this, walkDetectionService)
         }
@@ -166,7 +166,7 @@ class TimerService : Service() {
     private fun terminateTimer() {
         timer?.cancel()
 
-        if (sharedPrefs.isResetEnabled()) stopService(walkDetectionService)
+        if (sharedPrefs.isResetEnabled(this)) stopService(walkDetectionService)
         broadcastState(TimerState.Terminated)
         notifications.removeNotifications()
         stopSelf()
