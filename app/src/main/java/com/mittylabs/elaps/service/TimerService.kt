@@ -9,6 +9,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.ActivityTransition
@@ -16,6 +17,7 @@ import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.mittylabs.elaps.BuildConfig
 import com.mittylabs.elaps.R
+import com.mittylabs.elaps.app.ElapsApp.Companion.TAG
 import com.mittylabs.elaps.app.SharedPrefs
 import com.mittylabs.elaps.extensions.nanoToSeconds
 import com.mittylabs.elaps.extensions.toast
@@ -33,7 +35,7 @@ class TimerService : Service() {
         private const val TICK_INTERVAL = 50L
         private const val ONE_SECOND = 1000L
         private const val FIVE_MINUTES = 1000 * 60 * 5
-        private const val THIRTY_SECONDS = 1000L * 30L
+        private const val THIRTY_SECONDS = 30L
 
         const val START_ACTION = "PLAY"
         const val RESUME_ACTION = "RESUME"

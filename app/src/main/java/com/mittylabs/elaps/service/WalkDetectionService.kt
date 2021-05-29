@@ -37,9 +37,7 @@ class WalkDetectionService : Service() {
         )
     )
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -59,7 +57,7 @@ class WalkDetectionService : Service() {
             this,
             0,
             Intent(TimerService.TRANSITIONS_RECEIVER_ACTION),
-            piFlag // needs to be mutable
+            piFlag // needs to be mutable on android S
         )
         requestActivityUpdates()
     }
