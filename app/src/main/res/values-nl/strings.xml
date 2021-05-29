@@ -23,7 +23,7 @@
     <string name="preferences_app_version_title">App versie</string>
     <string name="preferences_display_dark_mode">Donker thema</string>
     <string name="preferences_timer_reset_walk">Reset timer</string>
-    <string name="preferences_timer_reset_walk_description">Zet een lopende timer automatisch terug naar zijn startpositie wanneer je beweegt</string>
+    <string name="preferences_timer_reset_walk_description">Zet een lopende timer automatisch terug naar de startpositie wanneer je beweegt</string>
     <string name="preferences_display_header">Weergave</string>
     <string name="preferences_timer_header">Timer</string>
     <string name="preferences_about_header">Over</string>
@@ -49,7 +49,7 @@
     <string name="toast_reset_timer_resume">Timer wordt hervat wegens inactiviteit!</string>
     <string name="error_generic">Er is iets fout gegaan</string>
     <string name="review_flow_done">Bedankt dat je ons laat weten wat je ervan vindt!</string>
-    <string name="permission_declined_text">De app heeft deze toestemming nodig voor auto-reset. Sta alsjeblieft toe om van deze functie gebruik te maken.</string>
+    <string name="permission_declined_text">De app heeft toestemming nodig voor auto-reset. Sta toe om van deze functie gebruik te maken.</string>
     <string name="snackbar_open_settings">Open\ninstellingen</string>
     <string name="permission_allow">toestaan</string>
     <string name="permission_deny">nee bedankt</string>
