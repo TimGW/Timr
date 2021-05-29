@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.timer
+package com.mittylabs.timr.timer
 
 import android.content.Intent
 import android.os.Build
@@ -12,15 +12,15 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.databinding.FragmentTimerRunningBinding
-import com.mittylabs.elaps.extensions.blink
-import com.mittylabs.elaps.extensions.toHumanFormat
-import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.model.TimerState.*
-import com.mittylabs.elaps.service.TimerService
-import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.timr.R
+import com.mittylabs.timr.app.SharedPrefs
+import com.mittylabs.timr.databinding.FragmentTimerRunningBinding
+import com.mittylabs.timr.extensions.blink
+import com.mittylabs.timr.extensions.toHumanFormat
+import com.mittylabs.timr.model.TimerState
+import com.mittylabs.timr.model.TimerState.*
+import com.mittylabs.timr.service.TimerService
+import com.mittylabs.timr.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

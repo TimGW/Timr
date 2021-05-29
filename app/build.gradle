@@ -16,7 +16,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.mittylabs.elaps"
+        applicationId "com.mittylabs.timr"
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
@@ -87,11 +87,6 @@ dependencies {
     // Dependency Injection
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
-
-    //workmanager
-//    kapt("androidx.hilt:hilt-compiler:1.0.0")
-//    implementation("androidx.hilt:hilt-work:1.0.0")
-//    implementation "androidx.work:work-runtime-ktx:2.5.0"
 
     // Activity transition api
     implementation 'com.google.android.gms:play-services-location:18.0.0'

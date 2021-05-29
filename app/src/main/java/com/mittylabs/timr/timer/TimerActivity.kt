@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.timer
+package com.mittylabs.timr.timer
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -12,12 +12,12 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import com.mittylabs.elaps.NavGraphDirections
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.databinding.ActivityTimerBinding
-import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.service.TimerService
+import com.mittylabs.timr.NavGraphDirections
+import com.mittylabs.timr.R
+import com.mittylabs.timr.app.SharedPrefs
+import com.mittylabs.timr.databinding.ActivityTimerBinding
+import com.mittylabs.timr.model.TimerState
+import com.mittylabs.timr.service.TimerService
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

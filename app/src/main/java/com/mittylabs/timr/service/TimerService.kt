@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.service
+package com.mittylabs.timr.service
 
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -9,22 +9,20 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.mittylabs.elaps.BuildConfig
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.ElapsApp.Companion.TAG
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.extensions.nanoToSeconds
-import com.mittylabs.elaps.extensions.toast
-import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.notification.Notifications
-import com.mittylabs.elaps.notification.NotificationsImpl.Companion.NOTIFICATION_ID
-import com.mittylabs.elaps.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
+import com.mittylabs.timr.BuildConfig
+import com.mittylabs.timr.R
+import com.mittylabs.timr.app.SharedPrefs
+import com.mittylabs.timr.extensions.nanoToSeconds
+import com.mittylabs.timr.extensions.toast
+import com.mittylabs.timr.model.TimerState
+import com.mittylabs.timr.notification.Notifications
+import com.mittylabs.timr.notification.NotificationsImpl.Companion.NOTIFICATION_ID
+import com.mittylabs.timr.timer.TimerActivity.Companion.INTENT_EXTRA_TIMER
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

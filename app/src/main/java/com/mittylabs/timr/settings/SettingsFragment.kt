@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.settings
+package com.mittylabs.timr.settings
 
 import android.Manifest.*
 import android.content.Intent
@@ -14,10 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.preference.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.mittylabs.elaps.BuildConfig
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.extensions.snackbar
+import com.mittylabs.timr.BuildConfig
+import com.mittylabs.timr.R
+import com.mittylabs.timr.app.SharedPrefs
+import com.mittylabs.timr.extensions.snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

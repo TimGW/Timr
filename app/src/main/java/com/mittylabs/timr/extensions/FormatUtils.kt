@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.extensions
+package com.mittylabs.timr.extensions
 
 import android.os.SystemClock
 import java.util.concurrent.TimeUnit

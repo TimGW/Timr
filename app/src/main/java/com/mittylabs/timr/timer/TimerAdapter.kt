@@ -1,10 +1,10 @@
-package com.mittylabs.elaps.timer
+package com.mittylabs.timr.timer
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.mittylabs.elaps.R
+import com.mittylabs.timr.R
 import java.util.*
 
 class TimerAdapter : RecyclerView.Adapter<TimerAdapter.ViewHolder>() {

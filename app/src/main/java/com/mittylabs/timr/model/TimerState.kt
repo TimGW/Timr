@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.model
+package com.mittylabs.timr.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

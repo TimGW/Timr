@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "Elaps"
+rootProject.name = "Timr"

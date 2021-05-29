@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.app
+package com.mittylabs.timr.app
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
@@ -6,7 +6,7 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class ElapsApp : Application() {
+class TimrApp : Application() {
     @Inject
     lateinit var sharedPref: SharedPrefs
 
@@ -23,6 +23,6 @@ class ElapsApp : Application() {
     }
 
     companion object {
-        const val TAG = "ElapsApp"
+        const val TAG = "TimrApp"
     }
 }

@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.app
+package com.mittylabs.timr.app
 
 import dagger.Module
 import dagger.Provides

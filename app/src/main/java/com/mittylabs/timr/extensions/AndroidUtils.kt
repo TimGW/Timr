@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.extensions
+package com.mittylabs.timr.extensions
 
 import android.content.Context
 import android.view.View

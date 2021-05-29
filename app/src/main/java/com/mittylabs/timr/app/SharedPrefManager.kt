@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.app
+package com.mittylabs.timr.app
 
 import android.content.Context
 import androidx.preference.PreferenceManager

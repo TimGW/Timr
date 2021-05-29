@@ -1,4 +1,4 @@
-package com.mittylabs.elaps
+package com.mittylabs.timr
 
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -7,8 +7,8 @@ import android.os.Build
 import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.mittylabs.elaps.databinding.ActivitySplashBinding
-import com.mittylabs.elaps.timer.TimerActivity
+import com.mittylabs.timr.databinding.ActivitySplashBinding
+import com.mittylabs.timr.timer.TimerActivity
 
 class SplashActivity : AppCompatActivity() {
 

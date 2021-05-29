@@ -1,18 +1,16 @@
-package com.mittylabs.elaps.service
+package com.mittylabs.timr.service
 
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import com.google.android.gms.location.*
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.extensions.toast
-import com.mittylabs.elaps.model.TimerState
-import com.mittylabs.elaps.notification.Notifications
-import com.mittylabs.elaps.notification.NotificationsImpl
+import com.mittylabs.timr.R
+import com.mittylabs.timr.extensions.toast
+import com.mittylabs.timr.model.TimerState
+import com.mittylabs.timr.notification.Notifications
+import com.mittylabs.timr.notification.NotificationsImpl
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

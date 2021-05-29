@@ -1,7 +1,7 @@
-package com.mittylabs.elaps.notification
+package com.mittylabs.timr.notification
 
 import android.app.Notification
-import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.timr.model.TimerState
 
 interface Notifications {
     fun getOrCreateNotification(timerLength: Long, timerState: TimerState): Notification

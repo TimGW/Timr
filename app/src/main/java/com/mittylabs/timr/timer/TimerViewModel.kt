@@ -1,9 +1,9 @@
-package com.mittylabs.elaps.timer
+package com.mittylabs.timr.timer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.mittylabs.elaps.model.TimerState
+import com.mittylabs.timr.model.TimerState
 
 class TimerViewModel : ViewModel() {
 

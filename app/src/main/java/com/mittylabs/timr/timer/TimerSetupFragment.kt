@@ -1,4 +1,4 @@
-package com.mittylabs.elaps.timer
+package com.mittylabs.timr.timer
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,12 +8,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView.HORIZONTAL
-import com.mittylabs.elaps.R
-import com.mittylabs.elaps.app.SharedPrefs
-import com.mittylabs.elaps.databinding.FragmentTimerSettingsBinding
-import com.mittylabs.elaps.extensions.setOnClickListeners
-import com.mittylabs.elaps.service.TimerService
+import com.mittylabs.timr.R
+import com.mittylabs.timr.app.SharedPrefs
+import com.mittylabs.timr.databinding.FragmentTimerSettingsBinding
+import com.mittylabs.timr.service.TimerService
 import com.mittylabs.sliderpickerlibrary.SliderLayoutManager
+import com.mittylabs.timr.extensions.setOnClickListeners
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
