@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Elaps</string>
+    <string name="minutes_90">90</string>
+    <string name="minutes_60">60</string>
+    <string name="minutes_45">45</string>
+    <string name="minutes_30">30</string>
+    <string name="minutes_20">20</string>
+    <string name="notification_action_stop">Resetten</string>
+    <string name="notification_action_resume">Hervatten</string>
+    <string name="notification_state_paused">gepauzeerd</string>
+    <string name="notification_action_pause">Pauzeren</string>
+    <string name="notification_action_extend">5 min. toevoegen</string>
+    <string name="notification_content_text">Timer %1$s</string>
+    <string name="notification_state_finished">klaar</string>
+    <string name="notification_state_stopped">gestopt</string>
+    <string name="notification_action_start">starten</string>
+    <string name="notification_action_terminate">verwijderen</string>
+    <string name="channel_timer_running_desc">Maak geluid</string>
+    <string name="channel_timer_finished_desc">Maak geluid en pop op het scherm</string>
+    <string name="timer_extend_button_text">+ 5:00</string>
+    <string name="initial_timer_setting">30</string>
+
+    <string name="preferences_app_version_title">App versie</string>
+    <string name="preferences_display_dark_mode">Donker thema</string>
+    <string name="preferences_timer_reset_walk">Reset timer</string>
+    <string name="preferences_timer_reset_walk_description">Zet een lopende timer automatisch terug naar zijn startpositie wanneer je beweegt</string>
+    <string name="preferences_display_header">Weergave</string>
+    <string name="preferences_timer_header">Timer</string>
+    <string name="preferences_about_header">Over</string>
+    <string-array name="night_mode_items">
+        <item>@string/night_mode_label_auto</item>
+        <item>@string/night_mode_label_off</item>
+        <item>@string/night_mode_label_on</item>
+    </string-array>
+    <string-array name="night_mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string name="night_mode_label_auto">Volg systeem</string>
+    <string name="night_mode_label_off">Uit</string>
+    <string name="night_mode_label_on">Aan</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="minutes_text">minuten</string>
+    <string name="minute_text">minuut</string>
+    <string name="title_timer">Timer</string>
+    <string name="title_settings">Instellingen</string>
+    <string name="toast_reset_timer">Timer is gereset vanwege activiteit!</string>
+    <string name="toast_reset_timer_resume">Timer wordt hervat wegens inactiviteit!</string>
+    <string name="error_generic">Er is iets fout gegaan</string>
+    <string name="review_flow_done">Bedankt dat je ons laat weten wat je ervan vindt!</string>
+    <string name="permission_declined_text">De app heeft deze toestemming nodig voor auto-reset. Sta alsjeblieft toe om van deze functie gebruik te maken.</string>
+    <string name="snackbar_open_settings">Open\ninstellingen</string>
+    <string name="permission_allow">toestaan</string>
+    <string name="permission_deny">nee bedankt</string>
+    <string name="service_walk_detection_register_success">Activiteitsupdates worden geregistreerd</string>
+    <string name="service_walk_detection_register_fail">Mislukt om activiteitsupdates te registreren</string>
+    <string name="service_walk_detection_unregister_success">Activiteitsupdates worden niet meer geregistreerd</string>
+    <string name="service_walk_detection_unregister_fail">Mislukt om activiteitsupdates niet meer te registreren</string>
+
+</resources>
