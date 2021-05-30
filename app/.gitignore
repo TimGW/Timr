@@ -10,4 +10,3 @@
 gradle/local.properties
 app/build/
 keystore.properties
-apikey.properties
