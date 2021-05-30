@@ -23,7 +23,7 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name="com.mittylabs.timr.SplashActivity"
+            android:name="com.mittylabs.timr.splash.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

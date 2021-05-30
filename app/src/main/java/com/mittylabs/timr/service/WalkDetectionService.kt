@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import com.google.android.gms.location.*
 import com.mittylabs.timr.R
+import com.mittylabs.timr.extensions.isAndroid12
 import com.mittylabs.timr.extensions.toast
 import com.mittylabs.timr.model.TimerState
 import com.mittylabs.timr.notification.Notifications
@@ -47,9 +48,11 @@ class WalkDetectionService : Service() {
 
         activityRecognitionClient = ActivityRecognitionClient(this)
 
-        val piFlag = if (Build.VERSION.CODENAME == "S" ||
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PendingIntent.FLAG_MUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+        val piFlag = if (isAndroid12()) {
+            PendingIntent.FLAG_MUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
 
         pendingIntent = PendingIntent.getBroadcast(
             this,

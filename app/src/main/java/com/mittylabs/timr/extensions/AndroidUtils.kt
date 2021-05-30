@@ -1,6 +1,7 @@
 package com.mittylabs.timr.extensions
 
 import android.content.Context
+import android.os.Build
 import android.view.View
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
@@ -44,3 +45,5 @@ fun View.snackbar(
     snackbar.show()
     return snackbar
 }
+
+fun isAndroid12() = Build.VERSION.CODENAME == "S" || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

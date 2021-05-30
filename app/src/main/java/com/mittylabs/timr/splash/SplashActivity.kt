@@ -1,4 +1,4 @@
-package com.mittylabs.timr
+package com.mittylabs.timr.splash
 
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
@@ -8,6 +8,7 @@ import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.timr.databinding.ActivitySplashBinding
+import com.mittylabs.timr.extensions.isAndroid12
 import com.mittylabs.timr.timer.TimerActivity
 
 class SplashActivity : AppCompatActivity() {
@@ -15,8 +16,7 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.CODENAME == "S" ||
-                Build.VERSION.SDK_INT >= S) openTimerActivity() else animateSplash()
+        if (isAndroid12()) openTimerActivity() else animateSplash()
     }
 
     private fun animateSplash() {
