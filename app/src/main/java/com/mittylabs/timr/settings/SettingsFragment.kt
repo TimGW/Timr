@@ -18,6 +18,7 @@ import com.mittylabs.timr.BuildConfig
 import com.mittylabs.timr.R
 import com.mittylabs.timr.app.SharedPrefs
 import com.mittylabs.timr.extensions.snackbar
+import com.mittylabs.timr.extensions.toast
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -111,10 +112,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     val reviewInfo = task.result
                     val flow = manager.launchReviewFlow(requireActivity(), reviewInfo)
                     flow.addOnCompleteListener { _ ->
-                        view?.snackbar(message = getString(R.string.review_flow_done))
+                        requireContext().toast(getString(R.string.review_flow_done))
                     }
                 } else {
-                    view?.snackbar(message = getString(R.string.error_generic))
+                    requireContext().toast(getString(R.string.error_generic))
                 }
             }
             true
@@ -131,7 +132,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         requestPermissionLauncher.launch(permission.ACTIVITY_RECOGNITION)
                     }
                     .setNegativeButton(getString(R.string.permission_deny)) { dialog, _ ->
-                       dialog.cancel()
+                        dialog.cancel()
                     }
                     .setCancelable(false)
                     .create()
