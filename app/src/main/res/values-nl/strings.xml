@@ -23,7 +23,7 @@
     <string name="preferences_app_version_title">App versie</string>
     <string name="preferences_display_dark_mode">Donker thema</string>
     <string name="preferences_timer_reset_walk">Reset timer</string>
-    <string name="preferences_timer_reset_walk_description">Zet een lopende timer automatisch terug naar de startpositie wanneer je beweegt</string>
+    <string name="preferences_timer_reset_walk_description">De timer stop automatisch bij beweging en hervat zichzelf bij inactiviteit</string>
     <string name="preferences_display_header">Weergave</string>
     <string name="preferences_timer_header">Timer</string>
     <string name="preferences_about_header">Over</string>
@@ -45,7 +45,7 @@
     <string name="minute_text">minuut</string>
     <string name="title_timer">Timer</string>
     <string name="title_settings">Instellingen</string>
-    <string name="toast_reset_timer">Timer is gereset vanwege activiteit!</string>
+    <string name="toast_reset_timer">Timer is gestopt vanwege activiteit!</string>
     <string name="toast_reset_timer_resume">Timer wordt hervat wegens inactiviteit!</string>
     <string name="error_generic">Er is iets fout gegaan</string>
     <string name="review_flow_done">Bedankt dat je ons laat weten wat je ervan vindt!</string>
@@ -53,7 +53,7 @@
     <string name="snackbar_open_settings">Open\ninstellingen</string>
     <string name="permission_allow">toestaan</string>
     <string name="permission_deny">nee bedankt</string>
-    <string name="service_walk_detection_register_success">Activiteitsupdates worden geregistreerd</string>
+    <string name="service_walk_detection_register_success">De timer stopt nu automatisch bij beweging</string>
     <string name="service_walk_detection_register_fail">Mislukt om activiteitsupdates te registreren</string>
     <string name="service_walk_detection_unregister_success">Activiteitsupdates worden niet meer geregistreerd</string>
     <string name="service_walk_detection_unregister_fail">Mislukt om activiteitsupdates niet meer te registreren</string>
