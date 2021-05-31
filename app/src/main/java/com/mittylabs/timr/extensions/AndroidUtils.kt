@@ -46,4 +46,4 @@ fun View.snackbar(
     return snackbar
 }
 
-fun isAndroid12() = Build.VERSION.CODENAME == "S" || Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+fun isAndroid12() = Build.VERSION.CODENAME == "S" || Build.VERSION.SDK_INT >= 31

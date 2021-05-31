@@ -4,7 +4,6 @@ import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Build.VERSION_CODES.S
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mittylabs.timr.databinding.ActivitySplashBinding

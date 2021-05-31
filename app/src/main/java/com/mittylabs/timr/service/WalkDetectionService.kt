@@ -49,7 +49,7 @@ class WalkDetectionService : Service() {
         activityRecognitionClient = ActivityRecognitionClient(this)
 
         val piFlag = if (isAndroid12()) {
-            PendingIntent.FLAG_MUTABLE
+            PendingIntent.FLAG_UPDATE_CURRENT // FIXME for android 12
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
