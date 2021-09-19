@@ -1,5 +1,6 @@
 package com.mittylabs.timr.splash
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.Animatable2
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
@@ -10,6 +11,11 @@ import com.mittylabs.timr.databinding.ActivitySplashBinding
 import com.mittylabs.timr.extensions.isAndroid12
 import com.mittylabs.timr.timer.TimerActivity
 
+/**
+ * SplashActivity is required to show animated icon prior to Android12.
+ * on API > 30 this screen is skipped
+ */
+@SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

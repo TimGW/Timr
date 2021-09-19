@@ -1,12 +1,18 @@
 package com.mittylabs.timr.timer
 
+import android.animation.ObjectAnimator
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.animation.doOnEnd
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -16,6 +22,7 @@ import com.mittylabs.timr.NavGraphDirections
 import com.mittylabs.timr.R
 import com.mittylabs.timr.app.SharedPrefs
 import com.mittylabs.timr.databinding.ActivityTimerBinding
+import com.mittylabs.timr.extensions.isAndroid12
 import com.mittylabs.timr.model.TimerState
 import com.mittylabs.timr.service.TimerService
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,9 +54,11 @@ class TimerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTimerBinding.inflate(layoutInflater)
+        if (isAndroid12()) delayFirstFrameForSplash()
 
         setContentView(binding.root)
         setSupportActionBar(binding.appbar.toolbar)
+
 
         manager = LocalBroadcastManager.getInstance(this)
 
@@ -97,6 +106,19 @@ class TimerActivity : AppCompatActivity() {
         } else {
             navController as NavController
         }
+    }
+
+    private fun delayFirstFrameForSplash() {
+        val content: View = findViewById(android.R.id.content)
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    Thread.sleep(250) // todo change to animationlistener
+                    content.viewTreeObserver.removeOnPreDrawListener(this)
+                    return true
+                }
+            }
+        )
     }
 
     companion object {
